@@ -69,8 +69,8 @@ export async function getAllUsers(req, res) {
 
 export async function updateUser(req, res) {
   try {
-    const { username, email, password, skillLevel } = req.body;
-    if (username || email || password || skillLevel) {
+    const { username, email, password, skillLevel, isDarkMode } = req.body;
+    if (username || email || password || skillLevel || isDarkMode) {
       const userId = req.params.id;
       if (!isValidObjectId(userId)) {
         return res.status(404).json({ message: `User ${userId} not found` });
@@ -95,7 +95,7 @@ export async function updateUser(req, res) {
         const salt = bcrypt.genSaltSync(10);
         hashedPassword = bcrypt.hashSync(password, salt);
       }
-      const updatedUser = await _updateUserById(userId, username, email, hashedPassword, skillLevel);
+      const updatedUser = await _updateUserById(userId, username, email, hashedPassword, skillLevel, isDarkMode);
       return res.status(200).json({
         message: `Updated data for user ${userId}`,
         data: formatUserResponse(updatedUser),
@@ -163,6 +163,7 @@ export function formatUserResponse(user) {
     email: user.email,
     skillLevel: user.skillLevel,
     isAdmin: user.isAdmin,
+    isDarkMode: user.isDarkMode,
     createdAt: user.createdAt,
   };
 }

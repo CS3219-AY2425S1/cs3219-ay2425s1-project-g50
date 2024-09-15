@@ -40,7 +40,7 @@ export async function findAllUsers() {
   return UserModel.find();
 }
 
-export async function updateUserById(userId, username, email, password, skillLevel) {
+export async function updateUserById(userId, username, email, password, skillLevel, isDarkMode) {
   return UserModel.findByIdAndUpdate(
     userId,
     {
@@ -48,7 +48,8 @@ export async function updateUserById(userId, username, email, password, skillLev
         username,
         email,
         password,
-        skillLevel
+        skillLevel,
+        isDarkMode
       },
     },
     { new: true },  // return the updated user

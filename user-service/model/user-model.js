@@ -31,6 +31,11 @@ const UserModelSchema = new Schema({
     required: true,
     default: false,
   },
+  isDarkMode: {
+    type: Boolean,
+    required: true,
+    default: false,
+  }
 });
 
 export default mongoose.model("UserModel", UserModelSchema);
