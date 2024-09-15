@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import useSWR from 'swr'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,36 +13,50 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { AlertCircle, Moon, Sun } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
-export default function UserSettings({ userId }: { userId: string }) {
-  const [user, setUser] = useState({
-    username: '',
-    email: '',
-    skillLevel: '',
-    darkMode: false,
+const fetcher = (url: string) => {
+  // Retrieve the JWT token from localStorage
+  const token = localStorage.getItem('jwtToken')
+  
+  // If there's no token, you might want to redirect to login or handle this case
+  if (!token) {
+    throw new Error('No authentication token found')
+  }
+
+  return fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  }).then((res) => {
+    if (!res.ok) {
+      throw new Error('An error occurred while fetching the data.')
+    }
+    return res.json()
   })
+}
+
+export default function UserSettings({ userId }: { userId: string }) {
+  const { data, error, isLoading, mutate } = useSWR(`http://localhost:3001/users/${userId}`, fetcher)
   const [profilePicture, setProfilePicture] = useState('/placeholder.svg?height=100&width=100')
 
-  useEffect(() => {
-    // Here you would typically fetch the user data based on the userId
-    // For demonstration, we're just setting some dummy data
-    setUser({
-      username: 'johndoe',
-      email: 'johndoe@example.com',
-      skillLevel: 'Intermediate',
-      darkMode: false,
-    })
-  }, [userId])
+  const user = data?.data
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUser({ ...user, [e.target.name]: e.target.value })
+    if (user) {
+      mutate({ ...user, [e.target.name]: e.target.value }, false)
+    }
   }
 
   const handleSkillLevelChange = (value: string) => {
-    setUser({ ...user, skillLevel: value })
+    if (user) {
+      mutate({ ...user, skillLevel: value }, false)
+    }
   }
 
   const handleDarkModeToggle = () => {
-    setUser({ ...user, darkMode: !user.darkMode })
+    if (user) {
+      mutate({ ...user, darkMode: !user.darkMode }, false)
+    }
     // Here you would typically update the app's theme
   }
 
@@ -60,9 +75,47 @@ export default function UserSettings({ userId }: { userId: string }) {
     setProfilePicture('/placeholder.svg?height=100&width=100')
   }
 
+  const handleSaveChanges = async () => {
+    if (user) {
+      const token = localStorage.getItem('jwtToken')
+      if (!token) {
+        console.error('No authentication token found')
+        return
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3001/users/${userId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(user),
+        })
+        if (!response.ok) throw new Error('Failed to save changes')
+        mutate() // Revalidate the data
+      } catch (error) {
+        console.error('Error saving changes:', error)
+        // Handle error (e.g., show an error message to the user)
+      }
+    }
+  }
+
+  if (isLoading) {
+    return <div>Loading user data...</div>
+  }
+
+  if (error) {
+    return <div>Error: Failed to load user data</div>
+  }
+
+  if (!user) {
+    return <div>No user data available.</div>
+  }
+
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">User Settings for {userId}</h1>
+      <h1 className="text-2xl font-bold mb-4">User Settings for {user.username}</h1>
       <Tabs defaultValue="profile">
         <TabsList className="mb-4">
           <TabsTrigger value="profile">Profile</TabsTrigger>
@@ -79,7 +132,7 @@ export default function UserSettings({ userId }: { userId: string }) {
               <div className="flex items-center space-x-4">
                 <Avatar className="w-24 h-24">
                   <AvatarImage src={profilePicture} alt="Profile picture" />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarFallback>Placeholder</AvatarFallback>
                 </Avatar>
                 <div>
                   <Input type="file" accept="image/*" onChange={handleProfilePictureChange} className="mb-2" />
@@ -109,7 +162,7 @@ export default function UserSettings({ userId }: { userId: string }) {
               </div>
             </CardContent>
             <CardFooter>
-              <Button>Save Changes</Button>
+              <Button onClick={handleSaveChanges}>Save Changes</Button>
             </CardFooter>
           </Card>
         </TabsContent>
