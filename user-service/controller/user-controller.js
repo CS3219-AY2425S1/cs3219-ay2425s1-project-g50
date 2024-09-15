@@ -166,3 +166,27 @@ export function formatUserResponse(user) {
     createdAt: user.createdAt,
   };
 }
+
+export const sendPasswordResetEmail = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  try {
+    // Dummy logic for generating a reset token and simulating email sending
+    const resetToken = "dummy-reset-token"; // Dummy reset token
+    console.log(`Generated reset token for ${email}: ${resetToken}`);
+
+    // Simulate saving the reset token to the database
+    console.log(`Saving reset token to database for ${email}`);
+
+    // Simulate sending the email
+    console.log(`Sending password reset email to ${email} with token: ${resetToken}`);
+
+    res.status(200).json({ message: "Password reset email sent successfully (dummy response)" });
+  } catch (error) {
+    res.status(500).json({ message: "Error sending password reset email", error });
+  }
+};
