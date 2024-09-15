@@ -43,6 +43,7 @@ export default function UserSettings({ userId }: { userId: string }) {
     const [isDeleteButtonEnabled, setIsDeleteButtonEnabled] = useState(false)
 
 
+    // Use effect to fetch information related to the currently logged-in user
     useEffect(() => {
         if (data) {
             const username = data.data.username
@@ -60,12 +61,13 @@ export default function UserSettings({ userId }: { userId: string }) {
         }
     }, [data])
 
+     // Enable delete button in the delete account modal only when the input username matches the original username
     useEffect(() => {
-        // Enable delete button only when the input username matches the original username
         setIsDeleteButtonEnabled(confirmUsername === originalUsername);
     }, [confirmUsername, originalUsername]);
 
 
+    // Function to handle changes in the username/email fields
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (user) {
             setUser({
@@ -75,6 +77,7 @@ export default function UserSettings({ userId }: { userId: string }) {
         }
     }
 
+    // Function to handle changes in the skill level field
     const handleSkillLevelChange = (value: string) => {
         if (user) {
             setUser({
@@ -84,6 +87,7 @@ export default function UserSettings({ userId }: { userId: string }) {
         }
     }
 
+    // Function to handle changes in the profile picture, allowing user to select image from his/her own files
     const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (file) {
@@ -95,10 +99,12 @@ export default function UserSettings({ userId }: { userId: string }) {
         }
     }
 
+    // Function to delete the current profile picture, defaulting to a default placeholder image
     const handleDeleteProfilePicture = () => {
         setProfilePicture('/img/placeholder.svg?height=100&width=100')
     }
 
+    // Function to save any updates to the user's information
     const handleSaveChanges = async () => {
         if (user) {
         const token = localStorage.getItem('jwtToken')
@@ -127,6 +133,8 @@ export default function UserSettings({ userId }: { userId: string }) {
         }
     }
 
+
+    // Function to handle the deletion of the user account, which is called from the delete account modal
     const handleDeleteAccount = async () => {
         const token = localStorage.getItem('jwtToken')
         if (!token) {
