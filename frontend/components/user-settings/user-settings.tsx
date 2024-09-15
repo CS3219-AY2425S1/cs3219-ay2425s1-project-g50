@@ -265,6 +265,7 @@ export default function UserSettings({ userId }: { userId: string }) {
 
             <DeleteAccountModal
                 showDeleteModal={showDeleteModal}
+                originalUsername={originalUsername}
                 confirmUsername={confirmUsername}
                 setConfirmUsername={setConfirmUsername}
                 handleDeleteAccount={handleDeleteAccount}

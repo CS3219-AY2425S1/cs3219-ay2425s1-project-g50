@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 
 interface DeleteAccountModalProps {
     showDeleteModal: boolean;
+    originalUsername: string;
     confirmUsername: string;
     setConfirmUsername: (username: string) => void;
     handleDeleteAccount: () => void;
@@ -14,6 +15,7 @@ interface DeleteAccountModalProps {
 
 const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
     showDeleteModal,
+    originalUsername,
     confirmUsername,
     setConfirmUsername,
     handleDeleteAccount,
@@ -29,7 +31,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
                             <DialogTitle>Confirm Delete Account</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4">
-                            <p>To confirm, please type your username:</p>
+                            <p>To confirm, please type your username ({originalUsername}):</p>
                             <Input 
                                 type="text" 
                                 placeholder="Enter your username" 
