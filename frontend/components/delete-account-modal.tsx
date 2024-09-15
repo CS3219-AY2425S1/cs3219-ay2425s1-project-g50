@@ -38,7 +38,15 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
                             />
                         </div>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
+                            <Button 
+                                variant="outline"
+                                onClick={() => {
+                                    setShowDeleteModal(false);
+                                    setConfirmUsername('');
+                                }}
+                            >
+                                Cancel
+                            </Button>
                             <Button 
                                 variant="destructive" 
                                 onClick={handleDeleteAccount} 

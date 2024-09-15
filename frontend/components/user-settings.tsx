@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import useSWR from 'swr'
+import { useToast } from '@/components/hooks/use-toast'
+import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -41,6 +43,7 @@ export default function UserSettings({ userId }: { userId: string }) {
     const [showDeleteModal, setShowDeleteModal] = useState(false)
     const [confirmUsername, setConfirmUsername] = useState('')
     const [isDeleteButtonEnabled, setIsDeleteButtonEnabled] = useState(false)
+    const { toast } = useToast()
 
 
     // Use effect to fetch information related to the currently logged-in user
@@ -122,13 +125,23 @@ export default function UserSettings({ userId }: { userId: string }) {
             },
             body: JSON.stringify(user),
             })
-            if (!response.ok) throw new Error('Failed to save changes')
+            if (!response.ok) {
+                throw new Error('Failed to save changes')
+            } else {
+                toast({
+                    title: "Success 💪",
+                    description: "User information is updated successfully!",
+                })
+            }
 
             console.log('Changes saved successfully!')
             mutate()
         } catch (error) {
             console.error('Error saving changes:', error)
-            // Handle error (e.g., show an error message to the user)
+            toast({
+                title: "Failed ❗",
+                description: "An error has occured when saving changes.",
+            })
         }
         }
     }
@@ -221,6 +234,7 @@ export default function UserSettings({ userId }: { userId: string }) {
                 </CardContent>
                 <CardFooter>
                 <Button onClick={handleSaveChanges}>Save Changes</Button>
+                <Toaster />
                 </CardFooter>
             </Card>
             </TabsContent>
