@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,8 +16,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 const fetcher = (url: string) => {
   // Retrieve the JWT token from localStorage
   const token = localStorage.getItem('jwtToken')
-  
-  // If there's no token, you might want to redirect to login or handle this case
   if (!token) {
     throw new Error('No authentication token found')
   }
@@ -36,29 +34,51 @@ const fetcher = (url: string) => {
 }
 
 export default function UserSettings({ userId }: { userId: string }) {
-  const { data, error, isLoading, mutate } = useSWR(`http://localhost:3001/users/${userId}`, fetcher)
-  const [profilePicture, setProfilePicture] = useState('/placeholder.svg?height=100&width=100')
+    const { data, error, isLoading, mutate } = useSWR(`http://localhost:3001/users/${userId}`, fetcher)
+    const [user, setUser] = useState<{ username: string; email: string, skillLevel: string } | null>(null)
+    const [originalUsername, setOriginalUsername] = useState<string>("");
+    const [profilePicture, setProfilePicture] = useState('/placeholder.svg?height=100&width=100')
 
-  const user = data?.data
+    useEffect(() => {
+        if (data) {
+            const username = data.data.username
+            const email = data.data.email
+            const skillLevel = data.data.skillLevel
+
+            setUser({
+                username: username,
+                email: email,
+                skillLevel: skillLevel
+            })
+            setOriginalUsername(username);
+        }
+    }, [data])
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (user) {
-      mutate({ ...user, [e.target.name]: e.target.value }, false)
-    }
+        setUser({
+          ...user,
+          [e.target.name]: e.target.value,
+        })
+      }
   }
 
   const handleSkillLevelChange = (value: string) => {
     if (user) {
-      mutate({ ...user, skillLevel: value }, false)
+        setUser({
+            ...user,
+            skillLevel: value,
+          })
     }
   }
 
-  const handleDarkModeToggle = () => {
-    if (user) {
-      mutate({ ...user, darkMode: !user.darkMode }, false)
-    }
-    // Here you would typically update the app's theme
-  }
+//   const handleDarkModeToggle = () => {
+//     if (user) {
+//       mutate({ ...user, darkMode: !user.darkMode }, false)
+//     }
+//     // Here you would typically update the app's theme
+//   }
 
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -85,7 +105,7 @@ export default function UserSettings({ userId }: { userId: string }) {
 
       try {
         const response = await fetch(`http://localhost:3001/users/${userId}`, {
-          method: 'PUT',
+          method: 'PATCH',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -93,7 +113,9 @@ export default function UserSettings({ userId }: { userId: string }) {
           body: JSON.stringify(user),
         })
         if (!response.ok) throw new Error('Failed to save changes')
-        mutate() // Revalidate the data
+
+        console.log('Changes saved successfully!')
+        mutate()
       } catch (error) {
         console.error('Error saving changes:', error)
         // Handle error (e.g., show an error message to the user)
@@ -115,7 +137,7 @@ export default function UserSettings({ userId }: { userId: string }) {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">User Settings for {user.username}</h1>
+      <h1 className="text-2xl font-bold mb-4">User Settings for {originalUsername}</h1>
       <Tabs defaultValue="profile">
         <TabsList className="mb-4">
           <TabsTrigger value="profile">Profile</TabsTrigger>
@@ -209,7 +231,7 @@ export default function UserSettings({ userId }: { userId: string }) {
             </CardFooter>
           </Card>
         </TabsContent>
-        <TabsContent value="preferences">
+        {/* <TabsContent value="preferences">
           <Card>
             <CardHeader>
               <CardTitle>Preferences</CardTitle>
@@ -237,7 +259,7 @@ export default function UserSettings({ userId }: { userId: string }) {
               </div>
             </CardFooter>
           </Card>
-        </TabsContent>
+        </TabsContent> */}
       </Tabs>
     </div>
   )

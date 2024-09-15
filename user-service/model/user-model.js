@@ -17,6 +17,11 @@ const UserModelSchema = new Schema({
     type: String,
     required: true,
   },
+  skillLevel: {
+    type: String,
+    required: true,
+    default: "NIL",
+  },
   createdAt: {
     type: Date,
     default: Date.now, // Setting default to the current date/time

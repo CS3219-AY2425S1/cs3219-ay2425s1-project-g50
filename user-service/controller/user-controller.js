@@ -69,8 +69,8 @@ export async function getAllUsers(req, res) {
 
 export async function updateUser(req, res) {
   try {
-    const { username, email, password } = req.body;
-    if (username || email || password) {
+    const { username, email, password, skillLevel } = req.body;
+    if (username || email || password || skillLevel) {
       const userId = req.params.id;
       if (!isValidObjectId(userId)) {
         return res.status(404).json({ message: `User ${userId} not found` });
@@ -95,13 +95,13 @@ export async function updateUser(req, res) {
         const salt = bcrypt.genSaltSync(10);
         hashedPassword = bcrypt.hashSync(password, salt);
       }
-      const updatedUser = await _updateUserById(userId, username, email, hashedPassword);
+      const updatedUser = await _updateUserById(userId, username, email, hashedPassword, skillLevel);
       return res.status(200).json({
         message: `Updated data for user ${userId}`,
         data: formatUserResponse(updatedUser),
       });
     } else {
-      return res.status(400).json({ message: "No field to update: username and email and password are all missing!" });
+      return res.status(400).json({ message: "No field to update: username and email and password and skillLevel are all missing!" });
     }
   } catch (err) {
     console.error(err);
@@ -161,6 +161,7 @@ export function formatUserResponse(user) {
     id: user.id,
     username: user.username,
     email: user.email,
+    skillLevel: user.skillLevel,
     isAdmin: user.isAdmin,
     createdAt: user.createdAt,
   };
