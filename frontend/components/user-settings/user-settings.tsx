@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import useSWR from 'swr'
-import { useToast } from '@/components/hooks/use-toast'
+import { useToast } from "@/components/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { AlertCircle } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import DeleteAccountModal from "@/components/delete-account-modal"
+import DeleteAccountModal from "@/components/user-settings/delete-account-modal"
 
 const fetcher = (url: string) => {
   // Retrieve the JWT token from localStorage
