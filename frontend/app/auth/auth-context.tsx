@@ -11,6 +11,7 @@ interface UserAuthType {
 
 interface AuthContextType {
     user: UserAuthType | null;
+    token: string | null;
     login: (email: string, password: string) => Promise<UserAuthType | undefined>;
     logout: () => Promise<void>;
 }
@@ -20,11 +21,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const tokenKey = "jwtToken";
     const [user, setUser] = useState<UserAuthType | null>(null);
+    const [token, setToken] = useState<string | null>(localStorage.getItem(tokenKey));
 
     // Login using locally stored JWT token
     useEffect(() => {
-        const token = localStorage.getItem(tokenKey);
-
         if (token) {
             fetch("http://localhost:3001/auth/verify-token", {
                 method: "GET",
@@ -68,9 +68,12 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                 isAdmin: resJson.data.isAdmin,
             });
 
+            const { accessToken } = resJson.data;
+            setToken(accessToken);
+            
             // Cache JWT token for future authentication without login
-            localStorage.setItem(tokenKey, resJson.data.accessToken);
-
+            localStorage.setItem(tokenKey, accessToken);
+            
             return user as UserAuthType;
         } catch (err) {
             console.error(err);
@@ -79,11 +82,12 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
     const logout = async () => {
         setUser(null);
+        setToken(null);
         localStorage.removeItem("jwtToken");
     }
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, token, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
