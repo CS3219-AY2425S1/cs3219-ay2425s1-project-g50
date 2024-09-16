@@ -2,7 +2,7 @@
 
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
-interface UserType {
+interface UserAuthType {
     id: string;
     username: string;
     email: string;
@@ -10,8 +10,8 @@ interface UserType {
 }
 
 interface AuthContextType {
-    user: UserType | null;
-    login: (email: string, password: string) => Promise<UserType | undefined>;
+    user: UserAuthType | null;
+    login: (email: string, password: string) => Promise<UserAuthType | undefined>;
     logout: () => Promise<void>;
 }
 
@@ -19,7 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const tokenKey = "jwtToken";
-    const [user, setUser] = useState<UserType | null>(null);
+    const [user, setUser] = useState<UserAuthType | null>(null);
 
     // Login using locally stored JWT token
     useEffect(() => {
@@ -71,7 +71,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
             // Cache JWT token for future authentication without login
             localStorage.setItem(tokenKey, resJson.data.accessToken);
 
-            return user as UserType;
+            return user as UserAuthType;
         } catch (err) {
             console.error(err);
         }
