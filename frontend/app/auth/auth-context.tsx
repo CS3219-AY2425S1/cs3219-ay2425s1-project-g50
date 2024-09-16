@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 interface UserType {
     id: string;
@@ -20,7 +19,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const tokenKey = "jwtToken";
-    const router = useRouter();
     const [user, setUser] = useState<UserType | null>(null);
 
     // Login using locally stored JWT token
