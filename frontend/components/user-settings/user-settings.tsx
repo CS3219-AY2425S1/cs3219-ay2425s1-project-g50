@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import DeleteAccountModal from "@/components/user-settings/delete-account-modal";
+import LoadingScreen from "../common/loading-screen";
 interface User {
     username: string;
     email: string;
@@ -172,7 +173,7 @@ export default function UserSettings({ userId }: { userId: string }) {
     }
 
     if (isLoading) {
-        return <div>Loading user data...</div>
+        return <LoadingScreen />;
     }
 
     if (error) {
