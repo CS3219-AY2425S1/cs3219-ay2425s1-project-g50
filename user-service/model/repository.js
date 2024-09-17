@@ -1,8 +1,7 @@
 import UserModel from "./user-model.js";
+import PasswordResetModel from "./password-reset-model.js";
 import "dotenv/config";
 import { connect } from "mongoose";
-import { hasUncaughtExceptionCaptureCallback } from "process";
-import passwordResetModel from "./password-reset-model.js";
 
 export async function connectToDB() {
   let mongoDBUri =
@@ -74,4 +73,19 @@ export async function updateUserPrivilegeById(userId, isAdmin) {
 
 export async function deleteUserById(userId) {
   return UserModel.findByIdAndDelete(userId);
+}
+
+export async function createPasswordReset(email, token, expireTime) {
+  return new PasswordResetModel({
+    email,
+    token,
+    expireTime,
+  }).save();
+}
+
+export async function findPasswordResetByToken(token) {
+  return PasswordResetModel.findOne({ token });
+}
+export async function deletePasswordResetByEmail(id) {
+  return PasswordResetModel.findByIdAndDelete(id);
 }
