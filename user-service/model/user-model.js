@@ -30,11 +30,6 @@ const UserModelSchema = new Schema({
     type: Boolean,
     required: true,
     default: false,
-  },
-  isDarkMode: {
-    type: Boolean,
-    required: true,
-    default: false,
   }
 });
 

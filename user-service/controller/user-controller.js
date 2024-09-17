@@ -69,8 +69,8 @@ export async function getAllUsers(req, res) {
 
 export async function updateUser(req, res) {
   try {
-    const { username, email, password, skillLevel, isDarkMode } = req.body;
-    if (username || email || password || skillLevel || isDarkMode) {
+    const { username, email, password, skillLevel } = req.body;
+    if (username || email || password || skillLevel) {
       const userId = req.params.id;
       if (!isValidObjectId(userId)) {
         return res.status(404).json({ message: `User ${userId} not found` });
@@ -163,7 +163,6 @@ export function formatUserResponse(user) {
     email: user.email,
     skillLevel: user.skillLevel,
     isAdmin: user.isAdmin,
-    isDarkMode: user.isDarkMode,
     createdAt: user.createdAt,
   };
 }
