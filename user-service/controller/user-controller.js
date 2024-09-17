@@ -215,7 +215,7 @@ export const sendPasswordResetEmail = async (req, res) => {
   }
 
   try {
-    existingUser = await _findUserByEmail(email);
+    const existingUser = await _findUserByEmail(email);
     if (!existingUser) {
       return res.status(406).json({ message: "Email does not exist" });
     }

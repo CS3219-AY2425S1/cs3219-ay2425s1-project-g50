@@ -39,7 +39,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
       });
     }
     switch (res.status) {
-      case 201:
+      case 200:
         toast({
           title: "Success",
           description: "Your password has been reset!",
