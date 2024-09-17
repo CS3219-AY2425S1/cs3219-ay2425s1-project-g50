@@ -19,7 +19,6 @@ interface User {
     username: string;
     email: string;
     skillLevel: string;
-    isDarkMode: boolean;
 }
 
 const fetcher = (url: string) => {
@@ -58,9 +57,9 @@ export default function UserSettings({ userId }: { userId: string }) {
     // Use effect to fetch information related to the currently logged-in user
     useEffect(() => {
         if (data) {
-            const { username, email, skillLevel, isDarkMode } = data.data;
+            const { username, email, skillLevel } = data.data;
 
-            setUser({ username, email, skillLevel, isDarkMode });
+            setUser({ username, email, skillLevel });
             setOriginalUsername(username);
         }
     }, [data]);
