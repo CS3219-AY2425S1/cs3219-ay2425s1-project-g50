@@ -14,7 +14,7 @@ import {
   updateUserPrivilegeById as _updateUserPrivilegeById,
   createPasswordReset as _createPasswordReset,
   findValidPasswordResetByToken as _findValidPasswordResetByToken,
-  deletePasswordResetByEmail as _deletePasswordResetByEmail,
+  deletePasswordResetById as _deletePasswordResetById,
 } from "../model/repository.js";
 
 export async function createUser(req, res) {
@@ -215,16 +215,16 @@ export const sendPasswordResetEmail = async (req, res) => {
   }
 
   try {
-    // Dummy logic for generating a reset token and simulating email sending
+    existingUser = await _findUserByEmail(email);
+    if (!existingUser) {
+      return res.status(406).json({ message: "Email does not exist" });
+    }
+
     const expireTime = Date.now() + 3600000; // 1 hour from now
     const token = crypto.randomBytes(16).toString("hex");
-    const createdPasswordReset = await _createPasswordReset(
-      email,
-      token,
-      expireTime
-    );
     // TODO: Setup production friendly reset link
     const resetLink = `localhost:3000/auth/reset-password/${token}`;
+    await _createPasswordReset(email, token, expireTime);
 
     const transporter = nodemailer.createTransport({
       service: "zoho",
@@ -265,7 +265,7 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired token" });
     }
 
-    const user = await _findUserByEmail(email);
+    const user = await _findUserByEmail(passwordReset.email);
 
     if (!user) {
       return res.status(400).json({ message: "User not found" });
@@ -276,7 +276,7 @@ export const resetPassword = async (req, res) => {
 
     await user.save();
 
-    await PasswordResetModel.deleteOne({ token });
+    await _deletePasswordResetById(passwordReset.id);
 
     res.status(200).json({ message: "Password has been reset successfully" });
   } catch (error) {
