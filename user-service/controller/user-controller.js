@@ -1,5 +1,7 @@
+import bcrypt from "bcrypt";
 import { isValidObjectId } from "mongoose";
 import crypto from "crypto";
+import nodemailer from "nodemailer";
 import {
   createUser as _createUser,
   deleteUserById as _deleteUserById,
@@ -221,11 +223,29 @@ export const sendPasswordResetEmail = async (req, res) => {
       token,
       expireTime
     );
+    // TODO: Setup production friendly reset link
+    const resetLink = `localhost:3000/auth/reset-password/${token}`;
 
-    // TODO: Send the email
-    console.log(
-      `Sending password reset email to ${email} with token: ${token}`
-    );
+    const transporter = nodemailer.createTransport({
+      service: "zoho",
+      auth: {
+        user: process.env.EMAIL_ADDRESS,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_ADDRESS,
+      to: email,
+      subject: "PeerPrep: Password Reset",
+      text: `Click the link to reset your password: ${resetLink}`,
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
+      console.log("in email sent");
+      if (err) return console.error(err);
+      console.log("Email sent: " + info.response);
+    });
 
     res.status(200).json({
       message: `Password reset email sent to ${email}`,
