@@ -14,6 +14,7 @@ import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import DeleteAccountModal from "@/components/user-settings/delete-account-modal";
 import LoadingScreen from "../common/loading-screen";
+import { useAuth } from "@/app/auth/auth-context";
 interface User {
     username: string;
     email: string;
@@ -42,6 +43,9 @@ const fetcher = (url: string) => {
 }
 
 export default function UserSettings({ userId }: { userId: string }) {
+    const auth = useAuth();
+    const { toast } = useToast();
+    
     const { data, error, isLoading, mutate } = useSWR(`http://localhost:3001/users/${userId}`, fetcher);
     const [user, setUser] = useState<User | null>(null);
     const [originalUsername, setOriginalUsername] = useState<string>("");
@@ -49,7 +53,6 @@ export default function UserSettings({ userId }: { userId: string }) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [confirmUsername, setConfirmUsername] = useState('');
     const [isDeleteButtonEnabled, setIsDeleteButtonEnabled] = useState(false);
-    const { toast } = useToast();
 
 
     // Use effect to fetch information related to the currently logged-in user
@@ -108,7 +111,7 @@ export default function UserSettings({ userId }: { userId: string }) {
     // Function to save any updates to the user's information
     const handleSaveChanges = async () => {
         if (user) {
-            const token = localStorage.getItem('jwtToken');
+            const token = auth?.token;
             if (!token) {
                 console.error('No authentication token found');
                 return;
@@ -144,10 +147,9 @@ export default function UserSettings({ userId }: { userId: string }) {
         }
     }
 
-
     // Function to handle the deletion of the user account, which is called from the delete account modal
     const handleDeleteAccount = async () => {
-        const token = localStorage.getItem('jwtToken');
+        const token = auth?.token;
         if (!token) {
             console.error('No authentication token found');
             return;
