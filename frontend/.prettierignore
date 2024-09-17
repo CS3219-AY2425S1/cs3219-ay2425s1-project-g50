@@ -1,0 +1,8 @@
+# Ignore artifacts:
+.next
+node_modules
+.gitignore
+yarn.lock
+package.json
+
+# Ignore all HTML files:
