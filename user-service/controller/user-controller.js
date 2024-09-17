@@ -95,7 +95,7 @@ export async function updateUser(req, res) {
         const salt = bcrypt.genSaltSync(10);
         hashedPassword = bcrypt.hashSync(password, salt);
       }
-      const updatedUser = await _updateUserById(userId, username, email, hashedPassword, skillLevel, isDarkMode);
+      const updatedUser = await _updateUserById(userId, username, email, hashedPassword, skillLevel);
       return res.status(200).json({
         message: `Updated data for user ${userId}`,
         data: formatUserResponse(updatedUser),
