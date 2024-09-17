@@ -19,8 +19,8 @@ const UserModelSchema = new Schema({
   },
   skillLevel: {
     type: String,
-    required: true,
-    default: "NIL",
+    enum: ["Novice", "Intermediate", "Expert", null],
+    default: null,
   },
   createdAt: {
     type: Date,

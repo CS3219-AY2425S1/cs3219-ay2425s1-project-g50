@@ -1,5 +1,9 @@
-import UserSettings from '@/components/user-settings'
+import UserSettings from "@/components/user-settings/user-settings";
 
-export default function UserSettingsPage({ params }: { params: { user_id: string } }) {
-  return <UserSettings userId={params.user_id} />
+export default function UserSettingsPage({
+  params,
+}: {
+  params: { user_id: string };
+}) {
+  return <UserSettings userId={params.user_id} />;
 }
