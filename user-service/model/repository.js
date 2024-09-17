@@ -83,8 +83,11 @@ export async function createPasswordReset(email, token, expireTime) {
   }).save();
 }
 
-export async function findPasswordResetByToken(token) {
-  return PasswordResetModel.findOne({ token });
+export async function findValidPasswordResetByToken(token) {
+  return PasswordResetModel.findOne({
+    token,
+    expireTime: { $gt: Date.now() }, // Ensure token is not expired
+  });
 }
 export async function deletePasswordResetByEmail(id) {
   return PasswordResetModel.findByIdAndDelete(id);

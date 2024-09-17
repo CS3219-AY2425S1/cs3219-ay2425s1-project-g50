@@ -13,7 +13,7 @@ import {
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
   createPasswordReset as _createPasswordReset,
-  findPasswordResetByToken as _findPasswordResetByToken,
+  findValidPasswordResetByToken as _findValidPasswordResetByToken,
   deletePasswordResetByEmail as _deletePasswordResetByEmail,
 } from "../model/repository.js";
 
@@ -254,5 +254,32 @@ export const sendPasswordResetEmail = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error sending password reset email", error });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { token, password } = req.body;
+  try {
+    const passwordReset = await _findValidPasswordResetByToken(token);
+    if (!passwordReset) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    const user = await _findUserByEmail(email);
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+
+    await user.save();
+
+    await PasswordResetModel.deleteOne({ token });
+
+    res.status(200).json({ message: "Password has been reset successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error resetting password", error });
   }
 };
