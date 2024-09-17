@@ -1,25 +1,25 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import useSWR from 'swr'
-import { useToast } from "@/components/hooks/use-toast"
+import { useEffect, useState } from "react";
+import useSWR from "swr";
+import { useToast } from "@/components/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { AlertCircle } from 'lucide-react'
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import DeleteAccountModal from "@/components/user-settings/delete-account-modal"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import DeleteAccountModal from "@/components/user-settings/delete-account-modal";
 
 const fetcher = (url: string) => {
   // Retrieve the JWT token from localStorage
-  const token = localStorage.getItem('jwtToken')
+  const token = localStorage.getItem('jwtToken');
   if (!token) {
-    throw new Error('No authentication token found')
+    throw new Error('No authentication token found');
   }
 
   return fetch(url, {
@@ -29,40 +29,40 @@ const fetcher = (url: string) => {
     },
   }).then((res) => {
     if (!res.ok) {
-      throw new Error('An error occurred while fetching the data.')
+      throw new Error('An error occurred while fetching the data.');
     }
-    return res.json()
+    return res.json();
   })
 }
 
 export default function UserSettings({ userId }: { userId: string }) {
-    const { data, error, isLoading, mutate } = useSWR(`http://localhost:3001/users/${userId}`, fetcher)
-    const [user, setUser] = useState<{ username: string; email: string, skillLevel: string , isDarkMode: boolean } | null>(null)
-    const [originalUsername, setOriginalUsername] = useState<string>("")
-    const [profilePicture, setProfilePicture] = useState('/img/placeholder.svg?height=100&width=100')
-    const [showDeleteModal, setShowDeleteModal] = useState(false)
-    const [confirmUsername, setConfirmUsername] = useState('')
-    const [isDeleteButtonEnabled, setIsDeleteButtonEnabled] = useState(false)
-    const { toast } = useToast()
+    const { data, error, isLoading, mutate } = useSWR(`http://localhost:3001/users/${userId}`, fetcher);
+    const [user, setUser] = useState<{ username: string; email: string, skillLevel: string , isDarkMode: boolean } | null>(null);
+    const [originalUsername, setOriginalUsername] = useState<string>("");
+    const [profilePicture, setProfilePicture] = useState('/img/placeholder.svg?height=100&width=100');
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [confirmUsername, setConfirmUsername] = useState('');
+    const [isDeleteButtonEnabled, setIsDeleteButtonEnabled] = useState(false);
+    const { toast } = useToast();
 
 
     // Use effect to fetch information related to the currently logged-in user
     useEffect(() => {
         if (data) {
-            const username = data.data.username
-            const email = data.data.email
-            const skillLevel = data.data.skillLevel
-            const isDarkMode = data.data.isDarkMode
+            const username = data.data.username;
+            const email = data.data.email;
+            const skillLevel = data.data.skillLevel;
+            const isDarkMode = data.data.isDarkMode;
 
             setUser({
                 username: username,
                 email: email,
                 skillLevel: skillLevel,
                 isDarkMode: isDarkMode
-            })
+            });
             setOriginalUsername(username);
         }
-    }, [data])
+    }, [data]);
 
      // Enable delete button in the delete account modal only when the input username matches the original username
     useEffect(() => {
@@ -76,7 +76,7 @@ export default function UserSettings({ userId }: { userId: string }) {
             setUser({
             ...user,
             [e.target.name]: e.target.value,
-            })
+            });
         }
     }
 
@@ -86,73 +86,73 @@ export default function UserSettings({ userId }: { userId: string }) {
             setUser({
                 ...user,
                 skillLevel: value,
-            })
+            });
         }
     }
 
     // Function to handle changes in the profile picture, allowing user to select image from his/her own files
     const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
+        const file = e.target.files?.[0];
         if (file) {
-        const reader = new FileReader()
+        const reader = new FileReader();
         reader.onloadend = () => {
-            setProfilePicture(reader.result as string)
+            setProfilePicture(reader.result as string);
         }
-        reader.readAsDataURL(file)
+        reader.readAsDataURL(file);
         }
     }
 
     // Function to delete the current profile picture, defaulting to a default placeholder image
     const handleDeleteProfilePicture = () => {
-        setProfilePicture('/img/placeholder.svg?height=100&width=100')
+        setProfilePicture('/img/placeholder.svg?height=100&width=100');
     }
 
     // Function to save any updates to the user's information
     const handleSaveChanges = async () => {
         if (user) {
-        const token = localStorage.getItem('jwtToken')
-        if (!token) {
-            console.error('No authentication token found')
-            return
-        }
-
-        try {
-            const response = await fetch(`http://localhost:3001/users/${userId}`, {
-            method: 'PATCH',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(user),
-            })
-            if (!response.ok) {
-                throw new Error('Failed to save changes')
-            } else {
-                toast({
-                    title: "Success 💪",
-                    description: "User information is updated successfully!",
-                })
+            const token = localStorage.getItem('jwtToken');
+            if (!token) {
+                console.error('No authentication token found');
+                return;
             }
 
-            console.log('Changes saved successfully!')
-            mutate()
-        } catch (error) {
-            console.error('Error saving changes:', error)
-            toast({
-                title: "Failed ❗",
-                description: "An error has occured when saving changes.",
-            })
-        }
+            try {
+                const response = await fetch(`http://localhost:3001/users/${userId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(user),
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to save changes');
+                } else {
+                    toast({
+                        title: "Success 💪",
+                        description: "User information is updated successfully!",
+                    });
+                }
+
+                console.log('Changes saved successfully!');
+                mutate();
+            } catch (error) {
+                console.error('Error saving changes:', error);
+                toast({
+                    title: "Failed ❗",
+                    description: "An error has occured when saving changes.",
+                });
+            }
         }
     }
 
 
     // Function to handle the deletion of the user account, which is called from the delete account modal
     const handleDeleteAccount = async () => {
-        const token = localStorage.getItem('jwtToken')
+        const token = localStorage.getItem('jwtToken');
         if (!token) {
-            console.error('No authentication token found')
-            return
+            console.error('No authentication token found');
+            return;
         }
 
         try {
@@ -162,14 +162,14 @@ export default function UserSettings({ userId }: { userId: string }) {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-            })
-            if (!response.ok) throw new Error('Failed to delete account')
+            });
+            if (!response.ok) throw new Error('Failed to delete account');
 
-            console.log('Account deleted successfully!')
+            console.log('Account deleted successfully!');
             // Redirect to the main page after successful deletion
             window.location.href = '/';
         } catch (error) {
-            console.error('Error deleting account:', error)
+            console.error('Error deleting account:', error);
         }
     }
 
