@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { useToast } from "@/components/hooks/use-toast";
-import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -233,7 +232,6 @@ export default function UserSettings({ userId }: { userId: string }) {
                 </CardContent>
                 <CardFooter>
                 <Button onClick={handleSaveChanges}>Save Changes</Button>
-                <Toaster />
                 </CardFooter>
             </Card>
             </TabsContent>
