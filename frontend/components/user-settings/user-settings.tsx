@@ -55,17 +55,9 @@ export default function UserSettings({ userId }: { userId: string }) {
     // Use effect to fetch information related to the currently logged-in user
     useEffect(() => {
         if (data) {
-            const username = data.data.username;
-            const email = data.data.email;
-            const skillLevel = data.data.skillLevel;
-            const isDarkMode = data.data.isDarkMode;
+            const { username, email, skillLevel, isDarkMode } = data.data;
 
-            setUser({
-                username: username,
-                email: email,
-                skillLevel: skillLevel,
-                isDarkMode: isDarkMode
-            });
+            setUser({ username, email, skillLevel, isDarkMode });
             setOriginalUsername(username);
         }
     }, [data]);
