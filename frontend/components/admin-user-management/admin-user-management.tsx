@@ -15,30 +15,26 @@ import UnauthorisedAccess from "@/components/common/unauthorised-access";
 import LoadingScreen from "@/components/common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
 
-const fetcher = (url: string) => {
-  const token = localStorage.getItem("jwtToken");
-  if (!token) {
-    throw new Error("No authentication token found");
-  }
-
-  return fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  }).then((res) => {
-    if (!res.ok) {
-      if (res.status === 401) {
-        throw new Error(String(res.status));
-      }
-    }
-    return res.json();
-  });
-};
-
 export default function AdminUserManagement() {
   const auth = useAuth();
 
+  const fetcher = (url: string) => {
+    if (!auth?.token) {
+      throw new Error("No authentication token found");
+    }
+
+    return fetch(url, {
+      headers: {
+        Authorization: `Bearer ${auth?.token}`,
+        "Content-Type": "application/json",
+      },
+    }).then((res) => {
+      if (!res.ok && res.status !== 401) {
+        throw new Error(String(res.status));
+      }
+      return res.json();
+    });
+  };
   const { data, error, isLoading } = useSWR(
     "http://localhost:3001/users",
     fetcher
@@ -88,7 +84,7 @@ export default function AdminUserManagement() {
     const response = await fetch(`http://localhost:3001/users/${userId}`, {
       method: "DELETE",
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -96,7 +92,7 @@ export default function AdminUserManagement() {
       throw new Error("Failed to delete user");
     }
 
-    setUsers(users.filter(user => user.id !== userId));
+    setUsers(users.filter((user) => user.id !== userId));
   };
 
   return (
@@ -123,7 +119,10 @@ export default function AdminUserManagement() {
                 <Button variant="outline" className="mr-2" onClick={() => {}}>
                   Edit
                 </Button>
-                <Button variant="destructive" onClick={() => handleDelete(user.id)}>
+                <Button
+                  variant="destructive"
+                  onClick={() => handleDelete(user.id)}
+                >
                   Delete
                 </Button>
               </TableCell>
