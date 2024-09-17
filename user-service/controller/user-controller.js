@@ -217,7 +217,7 @@ export const sendPasswordResetEmail = async (req, res) => {
   try {
     const existingUser = await _findUserByEmail(email);
     if (!existingUser) {
-      return res.status(406).json({ message: "Email does not exist" });
+      return res.status(404).json({ message: "Email does not exist" });
     }
 
     const expireTime = Date.now() + 3600000; // 1 hour from now
@@ -259,16 +259,19 @@ export const sendPasswordResetEmail = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   const { token, password } = req.body;
+  if (!token || !password) {
+    return res.status(400).json({ message: "Token and Password are required" });
+  }
   try {
     const passwordReset = await _findValidPasswordResetByToken(token);
     if (!passwordReset) {
-      return res.status(400).json({ message: "Invalid or expired token" });
+      return res.status(404).json({ message: "Invalid or expired token" });
     }
 
     const user = await _findUserByEmail(passwordReset.email);
 
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
