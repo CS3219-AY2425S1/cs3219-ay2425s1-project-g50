@@ -1,6 +1,8 @@
 import UserModel from "./user-model.js";
 import "dotenv/config";
 import { connect } from "mongoose";
+import { hasUncaughtExceptionCaptureCallback } from "process";
+import passwordResetModel from "./password-reset-model.js";
 
 export async function connectToDB() {
   let mongoDBUri =
@@ -29,10 +31,7 @@ export async function findUserByUsername(username) {
 
 export async function findUserByUsernameOrEmail(username, email) {
   return UserModel.findOne({
-    $or: [
-      { username },
-      { email },
-    ],
+    $or: [{ username }, { email }],
   });
 }
 
@@ -40,7 +39,13 @@ export async function findAllUsers() {
   return UserModel.find();
 }
 
-export async function updateUserById(userId, username, email, password, skillLevel) {
+export async function updateUserById(
+  userId,
+  username,
+  email,
+  password,
+  skillLevel
+) {
   return UserModel.findByIdAndUpdate(
     userId,
     {
@@ -48,10 +53,10 @@ export async function updateUserById(userId, username, email, password, skillLev
         username,
         email,
         password,
-        skillLevel
+        skillLevel,
       },
     },
-    { new: true },  // return the updated user
+    { new: true } // return the updated user
   );
 }
 
@@ -63,7 +68,7 @@ export async function updateUserPrivilegeById(userId, isAdmin) {
         isAdmin,
       },
     },
-    { new: true },  // return the updated user
+    { new: true } // return the updated user
   );
 }
 
