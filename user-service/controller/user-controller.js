@@ -1,5 +1,5 @@
-import bcrypt from "bcrypt";
 import { isValidObjectId } from "mongoose";
+import crypto from "crypto";
 import {
   createUser as _createUser,
   deleteUserById as _deleteUserById,
@@ -10,6 +10,9 @@ import {
   findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
+  createPasswordReset as _createPasswordReset,
+  findPasswordResetByToken as _findPasswordResetByToken,
+  deletePasswordResetByEmail as _deletePasswordResetByEmail,
 } from "../model/repository.js";
 
 export async function createUser(req, res) {
@@ -211,20 +214,21 @@ export const sendPasswordResetEmail = async (req, res) => {
 
   try {
     // Dummy logic for generating a reset token and simulating email sending
-    const resetToken = "dummy-reset-token"; // Dummy reset token
+    const expireTime = Date.now() + 3600000; // 1 hour from now
+    const token = crypto.randomBytes(16).toString("hex");
+    const createdPasswordReset = await _createPasswordReset(
+      email,
+      token,
+      expireTime
+    );
 
-    console.log(`Generated reset token for ${email}: ${resetToken}`);
-
-    // Simulate saving the reset token to the database
-    console.log(`Saving reset token to database for ${email}`);
-
-    // Simulate sending the email
+    // TODO: Send the email
     console.log(
-      `Sending password reset email to ${email} with token: ${resetToken}`
+      `Sending password reset email to ${email} with token: ${token}`
     );
 
     res.status(200).json({
-      message: "Password reset email sent successfully (dummy response)",
+      message: `Password reset email sent to ${email}`,
     });
   } catch (error) {
     res

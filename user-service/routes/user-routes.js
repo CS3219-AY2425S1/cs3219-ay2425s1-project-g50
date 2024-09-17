@@ -9,13 +9,22 @@ import {
   updateUserPrivilege,
   sendPasswordResetEmail,
 } from "../controller/user-controller.js";
-import { verifyAccessToken, verifyIsAdmin, verifyIsOwnerOrAdmin } from "../middleware/basic-access-control.js";
+import {
+  verifyAccessToken,
+  verifyIsAdmin,
+  verifyIsOwnerOrAdmin,
+} from "../middleware/basic-access-control.js";
 
 const router = express.Router();
 
 router.get("/", verifyAccessToken, verifyIsAdmin, getAllUsers);
 
-router.patch("/:id/privilege", verifyAccessToken, verifyIsAdmin, updateUserPrivilege);
+router.patch(
+  "/:id/privilege",
+  verifyAccessToken,
+  verifyIsAdmin,
+  updateUserPrivilege
+);
 
 router.post("/", createUser);
 
@@ -25,6 +34,6 @@ router.patch("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, updateUser);
 
 router.delete("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, deleteUser);
 
-router.post("/password-reset", sendPasswordResetEmail);
+router.post("/forget-password", sendPasswordResetEmail);
 
 export default router;
