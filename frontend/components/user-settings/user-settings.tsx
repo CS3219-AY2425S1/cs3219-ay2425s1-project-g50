@@ -14,6 +14,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import DeleteAccountModal from "@/components/user-settings/delete-account-modal";
+interface User {
+    username: string;
+    email: string;
+    skillLevel: string;
+    isDarkMode: boolean;
+}
 
 const fetcher = (url: string) => {
   // Retrieve the JWT token from localStorage
@@ -37,7 +43,7 @@ const fetcher = (url: string) => {
 
 export default function UserSettings({ userId }: { userId: string }) {
     const { data, error, isLoading, mutate } = useSWR(`http://localhost:3001/users/${userId}`, fetcher);
-    const [user, setUser] = useState<{ username: string; email: string, skillLevel: string , isDarkMode: boolean } | null>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [originalUsername, setOriginalUsername] = useState<string>("");
     const [profilePicture, setProfilePicture] = useState('/img/placeholder.svg?height=100&width=100');
     const [showDeleteModal, setShowDeleteModal] = useState(false);
