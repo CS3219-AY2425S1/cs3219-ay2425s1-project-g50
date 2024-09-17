@@ -35,7 +35,7 @@ const ForgetPassword: React.FC = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:3001/users/password-reset",
+        "http://localhost:3001/users/forget-password",
         {
           method: "POST",
           headers: {
@@ -51,10 +51,7 @@ const ForgetPassword: React.FC = () => {
           errorData.message || "Failed to request password reset"
         );
       }
-
-      const data = await response.json();
       setSuccess(true);
-      console.log(data.message);
     } catch (error) {
       console.error("Error requesting password reset:", error);
       setError(
