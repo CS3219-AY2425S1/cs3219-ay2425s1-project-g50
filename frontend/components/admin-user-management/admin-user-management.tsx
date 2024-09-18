@@ -14,6 +14,7 @@ import {
 import UnauthorisedAccess from "@/components/common/unauthorised-access";
 import LoadingScreen from "@/components/common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
+import { User } from "@/interface/user.interface";
 
 const fetcher = (url: string) => {
   const token = localStorage.getItem("jwtToken");
@@ -32,7 +33,7 @@ const fetcher = (url: string) => {
         throw new Error(String(res.status));
       }
     }
-    return res.json();
+    return res.json().then((res) => res.data) as Promise<User[]>;
   });
 };
 
@@ -43,21 +44,13 @@ export default function AdminUserManagement() {
     "http://localhost:3001/users",
     fetcher
   );
-  const [users, setUsers] = useState<
-    {
-      id: string;
-      username: string;
-      email: string;
-      isAdmin: boolean;
-      skillLevel: string;
-    }[]
-  >([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [unauthorised, setUnauthorised] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
 
   useEffect(() => {
     if (data) {
-      setUsers(data.data);
+      setUsers(data);
     }
   }, [data]);
 
