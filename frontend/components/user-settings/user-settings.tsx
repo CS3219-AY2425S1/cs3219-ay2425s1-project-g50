@@ -223,7 +223,54 @@ export default function UserSettings({ userId }: { userId: string }) {
   }, [newPassword, confirmPassword]);
 
   const handleChangePassword = async () => {
-    // dummy function; does nothing
+    if (!user) return;
+
+    const token = auth?.token;
+    if (!token) {
+      console.error("No authentication token found");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/users/${userId}/change-password`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            currentPassword,
+            newPassword,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to change password");
+      }
+
+      toast({
+        title: "Success 💪",
+        description: "Password changed successfully!",
+      });
+
+      // Clear the password fields
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error) {
+      console.error("Error changing password:", error);
+      toast({
+        title: "Failed ❗",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An error occurred when changing password.",
+      });
+    }
   };
 
   // Logic to check if the password is complex enough
@@ -241,6 +288,7 @@ export default function UserSettings({ userId }: { userId: string }) {
       setPasswordsMatch(true);
     }
   }, [newPassword, confirmPassword]);
+
   const isPasswordComplex = (password: string) => {
     const minLength = 8;
     const hasUpperCase = /[A-Z]/.test(password);
