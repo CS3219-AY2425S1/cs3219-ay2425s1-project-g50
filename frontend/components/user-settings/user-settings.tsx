@@ -20,7 +20,7 @@ import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import DeleteAccountModal from "@/components/user-settings/delete-account-modal";
 import ProfileTab from "@/components/user-settings/profile-tab";
-import LoadingScreen from "../common/loading-screen";
+import LoadingScreen from "@/components/common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
 import { cn } from "@/lib/utils";
 
