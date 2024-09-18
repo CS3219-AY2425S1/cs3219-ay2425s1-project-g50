@@ -1,5 +1,6 @@
 "use client";
 
+import { User } from "@/interface/user.interface";
 import {
   createContext,
   ReactNode,
@@ -8,17 +9,10 @@ import {
   useState,
 } from "react";
 
-interface UserAuthType {
-  id: string;
-  username: string;
-  email: string;
-  isAdmin: boolean;
-}
-
 interface AuthContextType {
-  user: UserAuthType | null;
+  user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<UserAuthType | undefined>;
+  login: (email: string, password: string) => Promise<User | undefined>;
   logout: () => Promise<void>;
 }
 
@@ -26,7 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const tokenKey = "jwtToken";
-  const [user, setUser] = useState<UserAuthType | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -73,12 +67,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
       const resJson = await response.json();
 
-      setUser({
-        id: resJson.data.id,
-        username: resJson.data.username,
-        email: resJson.data.email,
-        isAdmin: resJson.data.isAdmin,
-      });
+      setUser(resJson.data);
 
       const { accessToken } = resJson.data;
       setToken(accessToken);
@@ -86,7 +75,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       // Cache JWT token for future authentication without login
       localStorage.setItem(tokenKey, accessToken);
 
-      return user as UserAuthType;
+      return user as User;
     } catch (err) {
       console.error(err);
     }
