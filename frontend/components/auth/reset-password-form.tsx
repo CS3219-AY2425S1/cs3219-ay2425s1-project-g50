@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { resetPassword } from "@/lib/reset-password";
+import { useToast } from "@/components/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,12 +15,12 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/hooks/use-toast";
 
 export function ResetPasswordForm({ token }: { token: string }) {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -44,7 +45,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           title: "Success",
           description: "Your password has been reset!",
         });
-        router.push("/auth/login");
+        setTimeout(() => router.push("/auth/login"), 500);
         break;
       case 500:
         toast({
@@ -62,7 +63,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
   };
 
   return (
-    <Card className="mx-auto max-w-sm">
+    <Card className="mx-auto w-96 max-w-xl">
       <CardHeader>
         <CardTitle className="text-2xl">Reset Password</CardTitle>
         <CardDescription>Enter your new password below</CardDescription>
