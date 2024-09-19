@@ -7,6 +7,7 @@ import {
   getUser,
   updateUser,
   updateUserPrivilege,
+  changeUserPassword,
   sendPasswordResetEmail,
   resetPassword,
 } from "../controller/user-controller.js";
@@ -30,6 +31,8 @@ router.patch(
 router.post("/", createUser);
 
 router.get("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, getUser);
+
+router.patch("/:id/change-password", changeUserPassword);
 
 router.patch("/:id", verifyAccessToken, verifyIsOwnerOrAdmin, updateUser);
 

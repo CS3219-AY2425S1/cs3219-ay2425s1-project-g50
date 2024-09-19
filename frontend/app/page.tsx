@@ -1,11 +1,15 @@
-import { Button } from "@/components/ui/button";
 import { BookOpen, Users, Code, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { FeatureCard } from "@/components/feature-card";
+import { ThemeToggle } from "@/components/theme-toggle";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-background">
+      <div className="m-2">
+        <ThemeToggle />
+      </div>
       {/* Hero Section */}
       <section className="relative py-20 lg:py-32 overflow-hidden">
         <div className="container mx-auto px-4">

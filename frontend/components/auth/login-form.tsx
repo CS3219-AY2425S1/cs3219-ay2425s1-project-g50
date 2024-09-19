@@ -30,7 +30,7 @@ export function LoginForm() {
     event.preventDefault();
     const user = await auth?.login(email, password);
     if (user?.isAdmin) {
-      router.push("/admin-user-management");
+      router.push("/app/admin-user-management");
     } else if (user) {
       router.push("/");
     } else {

@@ -48,6 +48,61 @@ export async function createUser(req, res) {
   }
 }
 
+// Password complexity check
+// This is the second check for password complexity
+// The first check is done in the frontend
+const isPasswordComplex = (password) => {
+  const minLength = 8;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(
+    password
+  );
+
+  return password.length >= minLength && hasUpperCase && hasSpecialChar;
+};
+
+export async function changeUserPassword(req, res) {
+  try {
+    const userId = req.params.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!isValidObjectId(userId)) {
+      return res.status(404).json({ message: `User ${userId} not found` });
+    }
+
+    const user = await _findUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: `User ${userId} not found` });
+    }
+
+    // Verify current password
+    const isPasswordCorrect = bcrypt.compareSync(currentPassword, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ message: "Current password is incorrect" });
+    }
+
+    // Verify new password complexity
+    if (!isPasswordComplex(newPassword)) {
+      return res.status(400).json({ message: "New password is not complex enough" });
+    }
+
+    // Hash new password
+    const salt = bcrypt.genSaltSync(10);
+    const hashedNewPassword = bcrypt.hashSync(newPassword, salt);
+
+    // Update password
+    const updatedUser = await _updateUserById(userId, user.username, user.email, hashedNewPassword, user.skillLevel);
+
+    return res.status(200).json({
+      message: `Password updated successfully for user ${userId}`,
+      data: formatUserResponse(updatedUser),
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when changing user password!" });
+  }
+}
+
 export async function getUser(req, res) {
   try {
     const userId = req.params.id;
