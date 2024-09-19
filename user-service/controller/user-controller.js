@@ -16,6 +16,7 @@ import {
   findValidPasswordResetByToken as _findValidPasswordResetByToken,
   deletePasswordResetById as _deletePasswordResetById,
 } from "../model/repository.js";
+import getResetEmail from "../utils/email.js";
 
 export async function createUser(req, res) {
   try {
@@ -76,14 +77,19 @@ export async function changeUserPassword(req, res) {
     }
 
     // Verify current password
-    const isPasswordCorrect = bcrypt.compareSync(currentPassword, user.password);
+    const isPasswordCorrect = bcrypt.compareSync(
+      currentPassword,
+      user.password
+    );
     if (!isPasswordCorrect) {
       return res.status(401).json({ message: "Current password is incorrect" });
     }
 
     // Verify new password complexity
     if (!isPasswordComplex(newPassword)) {
-      return res.status(400).json({ message: "New password is not complex enough" });
+      return res
+        .status(400)
+        .json({ message: "New password is not complex enough" });
     }
 
     // Hash new password
@@ -91,7 +97,13 @@ export async function changeUserPassword(req, res) {
     const hashedNewPassword = bcrypt.hashSync(newPassword, salt);
 
     // Update password
-    const updatedUser = await _updateUserById(userId, user.username, user.email, hashedNewPassword, user.skillLevel);
+    const updatedUser = await _updateUserById(
+      userId,
+      user.username,
+      user.email,
+      hashedNewPassword,
+      user.skillLevel
+    );
 
     return res.status(200).json({
       message: `Password updated successfully for user ${userId}`,
@@ -99,7 +111,9 @@ export async function changeUserPassword(req, res) {
     });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Unknown error when changing user password!" });
+    return res
+      .status(500)
+      .json({ message: "Unknown error when changing user password!" });
   }
 }
 
@@ -278,7 +292,7 @@ export const sendPasswordResetEmail = async (req, res) => {
     const expireTime = Date.now() + 3600000; // 1 hour from now
     const token = crypto.randomBytes(16).toString("hex");
     // TODO: Setup production friendly reset link
-    const resetLink = `localhost:3000/auth/reset-password/${token}`;
+    const resetLink = `http://localhost:3000/auth/reset-password/${token}`;
     await _createPasswordReset(email, token, expireTime);
 
     const transporter = nodemailer.createTransport({
@@ -293,13 +307,12 @@ export const sendPasswordResetEmail = async (req, res) => {
       from: process.env.EMAIL_ADDRESS,
       to: email,
       subject: "PeerPrep: Password Reset",
-      text: `Click the link to reset your password: ${resetLink}`,
+      html: getResetEmail(resetLink),
     };
 
     transporter.sendMail(mailOptions, (err, info) => {
       console.log("in email sent");
       if (err) return console.error(err);
-      console.log("Email sent: " + info.response);
     });
 
     res.status(200).json({
