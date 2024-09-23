@@ -35,3 +35,21 @@ async def delete_question(question_id: str):
         return None
     await question_collection.delete_one({"_id": ObjectId(question_id)})
     return {"message": f"Question with id {existing_question['_id']} and title '{existing_question['title']}' deleted."}
+
+async def update_question_by_id(question_id: str, question_data: QuestionModel):
+    existing_question = await question_collection.find_one({"_id": ObjectId(question_id)})
+    if existing_question is None:
+        return None
+    
+    updated_data = {
+        "$set": {
+            "title": question_data.title,
+            "description": question_data.description,
+            "category": question_data.category,
+            "complexity": question_data.complexity
+        }
+    }
+    
+    await question_collection.update_one({"_id": ObjectId(question_id)}, updated_data)
+    
+    return await question_collection.find_one({"_id": ObjectId(question_id)})
