@@ -44,7 +44,7 @@ export default function QuestionCreate() {
       toast({
         title: "Success",
         description: "Question created successfully!",
-        variant: "default",
+        variant: "success",
         duration: 3000,
       });
 
