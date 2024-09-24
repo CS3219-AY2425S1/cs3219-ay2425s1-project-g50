@@ -1,4 +1,4 @@
-from app.models.questions import QuestionCollection, QuestionModel, UpdateQuestionModel
+from app.models.questions import CreateQuestionModel, UpdateQuestionModel, QuestionCollection, QuestionModel
 from bson import ObjectId
 from dotenv import load_dotenv
 import motor.motor_asyncio
@@ -14,7 +14,7 @@ client = motor.motor_asyncio.AsyncIOMotorClient(DB_CLOUD_URI)
 db = client.get_database("question_service")
 question_collection = db.get_collection("questions")
 
-async def create_question(question: QuestionModel):
+async def create_question(question: CreateQuestionModel):
     existing_question = await question_collection.find_one({"title": question.title})
     if existing_question:
         return None

@@ -62,8 +62,10 @@ export function LoginForm() {
           <div className="grid gap-2">
             <div className="flex items-center">
               <Label htmlFor="password">Password</Label>
-              {/* TODO: Link to forget password */}
-              <Link href="#" className="ml-auto inline-block text-sm underline">
+              <Link
+                href="/auth/forget-password"
+                className="ml-auto inline-block text-sm underline"
+              >
                 Forgot your password?
               </Link>
             </div>
@@ -93,7 +95,7 @@ export function LoginForm() {
           </Button>
         </form>
         <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account? {/* TODO: Link to sign up link */}
+          Don&apos;t have an account?{" "}
           <Link href="/auth/signup" className="underline">
             Sign up
           </Link>

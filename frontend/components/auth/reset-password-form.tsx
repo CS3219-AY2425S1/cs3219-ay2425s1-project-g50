@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "@/components/hooks/use-toast";
-import { signUp } from "@/lib/signup";
+import { resetPassword } from "@/lib/reset-password";
+import { useToast } from "@/components/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,12 +16,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function SignUpForm() {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
+export function ResetPasswordForm({ token }: { token: string }) {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -34,7 +32,7 @@ export function SignUpForm() {
       });
       return;
     }
-    const res = await signUp(username, email, password);
+    const res = await resetPassword(token, password);
     if (!res.ok) {
       toast({
         title: "Unknown Error",
@@ -42,26 +40,12 @@ export function SignUpForm() {
       });
     }
     switch (res.status) {
-      case 201:
+      case 200:
         toast({
           title: "Success",
-          description: "Your account has been created!",
+          description: "Your password has been reset!",
         });
-        router.push("/auth/login");
-        break;
-      case 400:
-        // In theory, they should never be able to send out a request
-        // with missing fields due to disabled submission button
-        toast({
-          title: "Missing Fields",
-          description: "Please fill out all fields",
-        });
-        break;
-      case 409:
-        toast({
-          title: "Duplicted Username or Email",
-          description: "The username or email you entered is already in use",
-        });
+        setTimeout(() => router.push("/auth/login"), 500);
         break;
       case 500:
         toast({
@@ -79,39 +63,13 @@ export function SignUpForm() {
   };
 
   return (
-    <Card className="mx-auto max-w-sm">
+    <Card className="mx-auto w-96 max-w-xl">
       <CardHeader>
-        <CardTitle className="text-2xl">Sign Up</CardTitle>
-        <CardDescription>
-          Enter your details below to create an account
-        </CardDescription>
+        <CardTitle className="text-2xl">Reset Password</CardTitle>
+        <CardDescription>Enter your new password below</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="grid gap-4">
-          <div className="grid gap-2">
-            <div className="flex items-center">
-              <Label htmlFor="password">Username</Label>
-            </div>
-            <Input
-              id="password"
-              type="text"
-              placeholder="mmo123"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="m@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
           <div className="grid gap-2">
             <div className="flex items-center">
               <Label htmlFor="password">Password</Label>
@@ -141,17 +99,11 @@ export function SignUpForm() {
           <Button
             type="submit"
             className="w-full"
-            disabled={!username || !email || !password || !passwordConfirmation}
+            disabled={!password || !passwordConfirmation}
           >
-            Sign Up
+            Reset Password
           </Button>
         </form>
-        <div className="mt-4 text-center text-sm">
-          Already have an account?{" "}
-          <Link href="/auth/login" className="underline">
-            Log in
-          </Link>
-        </div>
       </CardContent>
     </Card>
   );

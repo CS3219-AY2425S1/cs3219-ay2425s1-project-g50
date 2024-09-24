@@ -20,7 +20,7 @@ const UserModelSchema = new Schema({
   skillLevel: {
     type: String,
     enum: ["Novice", "Intermediate", "Expert", null],
-    default: null
+    default: null,
   },
   createdAt: {
     type: Date,
@@ -30,7 +30,7 @@ const UserModelSchema = new Schema({
     type: Boolean,
     required: true,
     default: false,
-  }
+  },
 });
 
 export default mongoose.model("UserModel", UserModelSchema);

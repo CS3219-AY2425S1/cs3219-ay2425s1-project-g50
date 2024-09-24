@@ -1,4 +1,5 @@
 import UserModel from "./user-model.js";
+import PasswordResetModel from "./password-reset-model.js";
 import "dotenv/config";
 import { connect } from "mongoose";
 
@@ -29,10 +30,7 @@ export async function findUserByUsername(username) {
 
 export async function findUserByUsernameOrEmail(username, email) {
   return UserModel.findOne({
-    $or: [
-      { username },
-      { email },
-    ],
+    $or: [{ username }, { email }],
   });
 }
 
@@ -40,7 +38,13 @@ export async function findAllUsers() {
   return UserModel.find();
 }
 
-export async function updateUserById(userId, username, email, password, skillLevel) {
+export async function updateUserById(
+  userId,
+  username,
+  email,
+  password,
+  skillLevel
+) {
   return UserModel.findByIdAndUpdate(
     userId,
     {
@@ -48,10 +52,10 @@ export async function updateUserById(userId, username, email, password, skillLev
         username,
         email,
         password,
-        skillLevel
+        skillLevel,
       },
     },
-    { new: true },  // return the updated user
+    { new: true } // return the updated user
   );
 }
 
@@ -63,10 +67,28 @@ export async function updateUserPrivilegeById(userId, isAdmin) {
         isAdmin,
       },
     },
-    { new: true },  // return the updated user
+    { new: true } // return the updated user
   );
 }
 
 export async function deleteUserById(userId) {
   return UserModel.findByIdAndDelete(userId);
+}
+
+export async function createPasswordReset(email, token, expireTime) {
+  return new PasswordResetModel({
+    email,
+    token,
+    expireTime,
+  }).save();
+}
+
+export async function findValidPasswordResetByToken(token) {
+  return PasswordResetModel.findOne({
+    token,
+    expireTime: { $gt: Date.now() }, // Ensure token is not expired
+  });
+}
+export async function deletePasswordResetById(id) {
+  return PasswordResetModel.findByIdAndDelete(id);
 }
