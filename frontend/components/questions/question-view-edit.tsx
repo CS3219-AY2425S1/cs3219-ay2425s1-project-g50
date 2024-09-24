@@ -5,6 +5,7 @@ import useSWR from "swr";
 import QuestionForm from "@/components/questions/question-form";
 import { useAuth } from "@/app/auth/auth-context";
 import { useEffect, useState } from "react";
+import LoadingScreen from "@/components/common/loading-screen";
 
 const fetcher = async (url: string): Promise<Question> => {
   const token = localStorage.getItem("jwtToken");
@@ -35,7 +36,7 @@ export default function QuestionViewEdit({
 }) {
   const auth = useAuth();
 
-  const { data } = useSWR(
+  const { data, isLoading } = useSWR(
     `http://localhost:8000/questions/${questionId}`,
     fetcher
   );
@@ -51,13 +52,18 @@ export default function QuestionViewEdit({
     question;
   };
 
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">{question?.title}</h1>
       <QuestionForm
-        data={question}
+        initialData={question}
         isAdmin={auth?.user?.isAdmin}
         handleSubmit={handleEdit}
+        submitButtonText="Save Changes"
       />
     </div>
   );
