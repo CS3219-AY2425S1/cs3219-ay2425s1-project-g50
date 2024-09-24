@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 
-
 const fetcher = async (url: string): Promise<Question[]> => {
   const token = localStorage.getItem("jwtToken");
   if (!token) {
@@ -53,7 +52,7 @@ export default function QuestionListing() {
 
   const handleCreateNewQuestion = () => {
     router.push(`/app/questions/create`);
-  } 
+  };
 
   const createNewQuestion = () => {
     return (
@@ -68,7 +67,7 @@ export default function QuestionListing() {
         </Button>
       </div>
     );
-  }
+  };
 
   if (isLoading) {
     return <LoadingScreen />;
