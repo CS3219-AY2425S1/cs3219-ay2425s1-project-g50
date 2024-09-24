@@ -33,7 +33,9 @@ export default function QuestionCreate() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (response.status == 409) {
+            throw new Error("A question with this title already exists.");
+        }
       }
 
       const data = await response.json();
@@ -48,8 +50,8 @@ export default function QuestionCreate() {
 
       router.push(`/app/questions/`);
     } catch (err) {
-      toast({
-        title: "Error",
+        toast({
+        title: "An error occured!",
         description: err instanceof Error ? err.message : "An unknown error occurred",
         variant: "destructive",
         duration: 5000,

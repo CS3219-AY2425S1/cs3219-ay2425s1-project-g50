@@ -55,7 +55,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
       <Card>
         <CardHeader>
           <CardTitle className="m-4">
-            <Label htmlFor="title">Title</Label>
+            <Label>Title</Label>
             <Input
               id="title"
               value={question.title}
@@ -70,7 +70,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
         </CardHeader>
         <CardContent>
           <div className="m-4">
-            <Label htmlFor="category">Category</Label>
+            <Label>Category</Label>
             <Input
               id="category"
               value={question.category}
@@ -83,7 +83,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
             />
           </div>
           <div className="m-4">
-            <Label htmlFor="complexity">Complexity</Label>
+            <Label>Complexity</Label>
             <div className="mt-2">
               {props.isAdmin ? (
                 <Select
@@ -115,7 +115,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ ...props }) => {
             </div>
           </div>
           <div className="m-4">
-            <Label htmlFor="description">Description</Label>
+            <Label>Description</Label>
             <AutosizeTextarea
               id="description"
               value={question.description}
