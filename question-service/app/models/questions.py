@@ -24,5 +24,11 @@ class QuestionModel(BaseModel):
 class QuestionCollection(BaseModel):
     questions: List[QuestionModel]
     
+class UpdateQuestionModel(BaseModel):
+    title: str
+    description: str
+    category: str
+    complexity: ComplexityEnum
+    
 class MessageModel(BaseModel):
     message: str
