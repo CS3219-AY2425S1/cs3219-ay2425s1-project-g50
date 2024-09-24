@@ -34,7 +34,7 @@ export default function QuestionCreate() {
 
       if (!response.ok) {
         if (response.status == 409) {
-            throw new Error("A question with this title already exists.");
+          throw new Error("A question with this title already exists.");
         }
       }
 
@@ -50,9 +50,10 @@ export default function QuestionCreate() {
 
       router.push(`/app/questions/`);
     } catch (err) {
-        toast({
+      toast({
         title: "An error occured!",
-        description: err instanceof Error ? err.message : "An unknown error occurred",
+        description:
+          err instanceof Error ? err.message : "An unknown error occurred",
         variant: "destructive",
         duration: 5000,
       });
