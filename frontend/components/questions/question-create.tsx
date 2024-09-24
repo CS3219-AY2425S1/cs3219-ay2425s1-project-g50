@@ -13,16 +13,10 @@ export default function QuestionCreate() {
 
   const handleCreate = async (newQuestion: Question) => {
     try {
-      const token = localStorage.getItem("jwtToken");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
-
       const response = await fetch("http://localhost:8000/questions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           title: newQuestion.title,
