@@ -28,13 +28,17 @@ export function LoginForm() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const user = await auth?.login(email, password);
-    if (user?.isAdmin) {
-      router.push("/app/admin-user-management");
-    } else if (user) {
-      router.push("/app/questions");
-    } else {
-      toast({ title: "Error", description: "Login Failed." });
+    try {
+      const user = await auth?.login(email, password);
+      if (user?.isAdmin) {
+        router.push("/app/admin-user-management");
+      } else if (user) {
+        router.push("/app/questions");
+      } else {
+        toast({ title: "Error", description: "Login Failed." });
+      }
+    } catch (err) {
+      toast({ title: "Error", variant: "destructive", description: "Login Failed." });
     }
   };
 
