@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useAuth } from "@/app/auth/auth-context";
 import { useRouter } from "next/navigation";
-import { useToast } from "../hooks/use-toast";
+import { useToast } from "@/components/hooks/use-toast";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 export function LoginForm() {
