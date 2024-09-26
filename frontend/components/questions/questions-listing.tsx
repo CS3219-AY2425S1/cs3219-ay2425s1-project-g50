@@ -194,24 +194,28 @@ export default function QuestionListing() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Question Listing</h1>
-      {auth?.user?.isAdmin && createNewQuestion()}
       {auth?.user?.isAdmin && (
-        <div className="mb-4">
-          <input
-            type="file"
-            accept=".json"
-            onChange={handleFileSelect}
-            style={{ display: "none" }}
-            id="batch-upload-input"
-          />
-          <label htmlFor="batch-upload-input">
-            <Button variant="outline" asChild>
-              <span>
-                <Upload className="mr-2 h-4 w-4" /> Upload questions from JSON
-                file
-              </span>
-            </Button>
-          </label>
+        <div className="flex justify-between mb-4">
+          <div>
+            <input
+              type="file"
+              accept=".json"
+              onChange={handleFileSelect}
+              style={{ display: "none" }}
+              id="batch-upload-input"
+            />
+            <label htmlFor="batch-upload-input">
+              <Button variant="outline" asChild>
+                <span>
+                  <Upload className="mr-2 h-4 w-4" /> Upload questions from JSON
+                  file
+                </span>
+              </Button>
+            </label>
+          </div>
+          <div>
+            {createNewQuestion()}
+          </div>
         </div>
       )}
       <QuestionTable
