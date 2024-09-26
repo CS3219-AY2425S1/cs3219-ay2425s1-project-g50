@@ -32,8 +32,6 @@ export default function QuestionCreate() {
         }
       }
 
-      const data = await response.json();
-
       toast({
         title: "Success",
         description: "Question created successfully!",
