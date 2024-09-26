@@ -2,6 +2,7 @@ from app.models.questions import CreateQuestionModel, UpdateQuestionModel, Quest
 from bson import ObjectId
 from dotenv import load_dotenv
 import motor.motor_asyncio
+from typing import List
 import os
 
 # Load env variables
@@ -47,3 +48,18 @@ async def update_question_by_id(question_id: str, question_data: UpdateQuestionM
     
     await question_collection.update_one({"_id": ObjectId(question_id)}, updated_data)
     return await question_collection.find_one({"_id": ObjectId(question_id)})
+
+async def batch_create_questions(questions: List[CreateQuestionModel]):
+    new_questions = []
+    for question in questions:
+        existing_question = await question_collection.find_one({"title": question.title})
+        if not existing_question:
+            # Convert Pydantic model to dictionary
+            new_questions.append(question.model_dump())
+
+    if not new_questions:
+        return {"error": "No new questions to add."}
+
+    result = await question_collection.insert_many(new_questions)
+    
+    return {"message": f"{len(result.inserted_ids)} questions added successfully."}

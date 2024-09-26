@@ -35,10 +35,18 @@ export function LoginForm() {
       } else if (user) {
         router.push("/app/questions");
       } else {
-        toast({ title: "Error", variant: "destructive", description: "Login Failed." });
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: "Login Failed.",
+        });
       }
     } catch (err) {
-      toast({ title: "Error", variant: "destructive", description: "Login Failed." });
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: "Login Failed.",
+      });
     }
   };
 

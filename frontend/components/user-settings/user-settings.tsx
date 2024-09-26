@@ -23,6 +23,7 @@ import ProfileTab from "@/components/user-settings/profile-tab";
 import LoadingScreen from "@/components/common/loading-screen";
 import { useAuth } from "@/app/auth/auth-context";
 import { cn } from "@/lib/utils";
+import AuthPageWrapper from "../auth/auth-page-wrapper";
 import { User, UserSchema } from "@/lib/schemas/user-schema";
 
 const fetcher = async (url: string): Promise<User> => {
@@ -307,192 +308,194 @@ export default function UserSettings({ userId }: { userId: string }) {
     return <LoadingScreen />;
   }
 
-  if (error) {
-    return <div>Error: Failed to load user data</div>;
-  }
-
-  if (!user) {
-    return <div>No user data available.</div>;
-  }
-
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">
-        User Settings for {originalUsername}
-      </h1>
-      <Tabs defaultValue="profile">
-        <TabsList className="mb-4">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="account">Account</TabsTrigger>
-        </TabsList>
-        <TabsContent value="profile">
-          <ProfileTab
-            user={user}
-            profilePicture={profilePicture}
-            handleInputChange={handleInputChange}
-            handleSkillLevelChange={handleSkillLevelChange}
-            handleProfilePictureChange={handleProfilePictureChange}
-            handleDeleteProfilePicture={handleDeleteProfilePicture}
-            handleSaveChanges={handleSaveChanges}
-            fileInputRef={fileInputRef}
-          />
-        </TabsContent>
-        <TabsContent value="account">
-          <Card>
-            <CardHeader>
-              <CardTitle>Account Security</CardTitle>
-              <CardDescription>
-                Manage your password and account settings.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="relative">
-                <Label htmlFor="currentPassword">Current Password</Label>
-                <div className="relative">
-                  <Input
-                    id="currentPassword"
-                    type={showCurrentPassword ? "text" : "password"}
-                    className="pr-10"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                  />
+    <AuthPageWrapper requireLoggedIn>
+      {error ? (
+        <div>Error: Failed to load user data</div>
+      ) : !user ? (
+        <div>No user data available.</div>
+      ) : (
+        <div className="container mx-auto p-4">
+          <h1 className="text-2xl font-bold mb-4">
+            User Settings for {originalUsername}
+          </h1>
+          <Tabs defaultValue="profile">
+            <TabsList className="mb-4">
+              <TabsTrigger value="profile">Profile</TabsTrigger>
+              <TabsTrigger value="account">Account</TabsTrigger>
+            </TabsList>
+            <TabsContent value="profile">
+              <ProfileTab
+                user={user}
+                profilePicture={profilePicture}
+                handleInputChange={handleInputChange}
+                handleSkillLevelChange={handleSkillLevelChange}
+                handleProfilePictureChange={handleProfilePictureChange}
+                handleDeleteProfilePicture={handleDeleteProfilePicture}
+                handleSaveChanges={handleSaveChanges}
+                fileInputRef={fileInputRef}
+              />
+            </TabsContent>
+            <TabsContent value="account">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Account Security</CardTitle>
+                  <CardDescription>
+                    Manage your password and account settings.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="relative">
+                    <Label htmlFor="currentPassword">Current Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="currentPassword"
+                        type={showCurrentPassword ? "text" : "password"}
+                        className="pr-10"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute inset-y-0 right-0 h-full px-3 flex items-center"
+                        onClick={() => togglePasswordVisibility("current")}
+                      >
+                        {showCurrentPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <Label htmlFor="newPassword">New Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="newPassword"
+                        type={showNewPassword ? "text" : "password"}
+                        className={cn(
+                          "pr-10",
+                          !passwordsMatch && "border-destructive"
+                        )}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute inset-y-0 right-0 h-full px-3 flex items-center"
+                        onClick={() => togglePasswordVisibility("new")}
+                      >
+                        {showNewPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <Label htmlFor="confirmPassword">
+                      Confirm New Password
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        className={cn(
+                          "pr-10",
+                          !passwordsMatch && "border-destructive"
+                        )}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute inset-y-0 right-0 h-full px-3 flex items-center"
+                        onClick={() => togglePasswordVisibility("confirm")}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    {!passwordsMatch && (
+                      <p className="text-sm text-destructive mt-1">
+                        Passwords do not match
+                      </p>
+                    )}
+                    {!isPasswordValid && newPassword && (
+                      <p className="text-sm text-destructive mt-1">
+                        Password must be at least 8 characters long, include 1
+                        uppercase letter and 1 special character.
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+                <CardFooter>
                   <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute inset-y-0 right-0 h-full px-3 flex items-center"
-                    onClick={() => togglePasswordVisibility("current")}
+                    disabled={
+                      !passwordsMatch ||
+                      !isPasswordValid ||
+                      !newPassword ||
+                      !confirmPassword ||
+                      !currentPassword
+                    }
+                    onClick={handleChangePassword}
                   >
-                    {showCurrentPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    Change Password
                   </Button>
-                </div>
-              </div>
-              <div className="relative">
-                <Label htmlFor="newPassword">New Password</Label>
-                <div className="relative">
-                  <Input
-                    id="newPassword"
-                    type={showNewPassword ? "text" : "password"}
-                    className={cn(
-                      "pr-10",
-                      !passwordsMatch && "border-destructive"
-                    )}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute inset-y-0 right-0 h-full px-3 flex items-center"
-                    onClick={() => togglePasswordVisibility("new")}
-                  >
-                    {showNewPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-              <div className="relative">
-                <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                <div className="relative">
-                  <Input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    className={cn(
-                      "pr-10",
-                      !passwordsMatch && "border-destructive"
-                    )}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute inset-y-0 right-0 h-full px-3 flex items-center"
-                    onClick={() => togglePasswordVisibility("confirm")}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-                {!passwordsMatch && (
-                  <p className="text-sm text-destructive mt-1">
-                    Passwords do not match
-                  </p>
-                )}
-                {!isPasswordValid && newPassword && (
-                  <p className="text-sm text-destructive mt-1">
-                    Password must be at least 8 characters long, include 1
-                    uppercase letter and 1 special character.
-                  </p>
-                )}
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button
-                disabled={
-                  !passwordsMatch ||
-                  !isPasswordValid ||
-                  !newPassword ||
-                  !confirmPassword ||
-                  !currentPassword
-                }
-                onClick={handleChangePassword}
-              >
-                Change Password
-              </Button>
-            </CardFooter>
-          </Card>
+                </CardFooter>
+              </Card>
 
-          <DeleteAccountModal
-            showDeleteModal={showDeleteModal}
-            originalUsername={originalUsername}
-            confirmUsername={confirmUsername}
-            setConfirmUsername={setConfirmUsername}
-            handleDeleteAccount={handleDeleteAccount}
-            isDeleteButtonEnabled={isDeleteButtonEnabled}
-            setShowDeleteModal={setShowDeleteModal}
-          />
+              <DeleteAccountModal
+                showDeleteModal={showDeleteModal}
+                originalUsername={originalUsername}
+                confirmUsername={confirmUsername}
+                setConfirmUsername={setConfirmUsername}
+                handleDeleteAccount={handleDeleteAccount}
+                isDeleteButtonEnabled={isDeleteButtonEnabled}
+                setShowDeleteModal={setShowDeleteModal}
+              />
 
-          <Card className="mt-4">
-            <CardHeader>
-              <CardTitle>Delete Account</CardTitle>
-              <CardDescription>
-                Permanently delete your account and all associated data.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Warning</AlertTitle>
-                <AlertDescription>
-                  This action cannot be undone. All your data will be
-                  permanently removed.
-                </AlertDescription>
-              </Alert>
-            </CardContent>
-            <CardFooter>
-              <Button
-                variant="destructive"
-                onClick={() => setShowDeleteModal(true)}
-              >
-                Delete Account
-              </Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+              <Card className="mt-4">
+                <CardHeader>
+                  <CardTitle>Delete Account</CardTitle>
+                  <CardDescription>
+                    Permanently delete your account and all associated data.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Warning</AlertTitle>
+                    <AlertDescription>
+                      This action cannot be undone. All your data will be
+                      permanently removed.
+                    </AlertDescription>
+                  </Alert>
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    variant="destructive"
+                    onClick={() => setShowDeleteModal(true)}
+                  >
+                    Delete Account
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      )}
+    </AuthPageWrapper>
   );
 }
