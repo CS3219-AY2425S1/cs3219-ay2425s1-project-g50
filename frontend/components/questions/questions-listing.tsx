@@ -9,11 +9,7 @@ import LoadingScreen from "@/components/common/loading-screen";
 import DeleteQuestionModal from "@/components/questions/delete-question-modal";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-<<<<<<< HEAD
-import { PlusIcon } from "lucide-react";
-=======
-import { Upload } from "lucide-react";
->>>>>>> main
+import { PlusIcon, Upload } from "lucide-react";
 import { useToast } from "@/components/hooks/use-toast";
 import {
   CreateQuestion,
@@ -65,7 +61,6 @@ export default function QuestionListing() {
     router.push(`/app/questions/${question.id}`);
   };
 
-<<<<<<< HEAD
   const handleCreateNewQuestion = () => {
     router.push(`/app/questions/create`);
   };
@@ -84,7 +79,7 @@ export default function QuestionListing() {
       </div>
     );
   }
-=======
+
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -147,7 +142,6 @@ export default function QuestionListing() {
       });
     }
   };
->>>>>>> main
 
   const handleDelete = (question: Question) => {
     setSelectedQuestion(question);
@@ -200,9 +194,7 @@ export default function QuestionListing() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Question Listing</h1>
-<<<<<<< HEAD
       {auth?.user?.isAdmin && createNewQuestion()}
-=======
       {auth?.user?.isAdmin && (
         <div className="mb-4">
           <input
@@ -222,7 +214,6 @@ export default function QuestionListing() {
           </label>
         </div>
       )}
->>>>>>> main
       <QuestionTable
         data={questions}
         isAdmin={auth?.user?.isAdmin ?? false}
