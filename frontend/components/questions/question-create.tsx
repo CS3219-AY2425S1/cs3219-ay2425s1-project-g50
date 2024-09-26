@@ -33,7 +33,6 @@ export default function QuestionCreate() {
       }
 
       const data = await response.json();
-      console.log("Question created:", data);
 
       toast({
         title: "Success",
