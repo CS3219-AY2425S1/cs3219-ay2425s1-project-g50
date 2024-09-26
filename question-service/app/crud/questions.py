@@ -1,4 +1,4 @@
-from app.models.questions import CreateQuestionModel, QuestionCollection, QuestionModel
+from app.models.questions import CreateQuestionModel, UpdateQuestionModel, QuestionCollection, QuestionModel
 from bson import ObjectId
 from dotenv import load_dotenv
 import motor.motor_asyncio
@@ -35,3 +35,15 @@ async def delete_question(question_id: str):
         return None
     await question_collection.delete_one({"_id": ObjectId(question_id)})
     return {"message": f"Question with id {existing_question['_id']} and title '{existing_question['title']}' deleted."}
+
+async def update_question_by_id(question_id: str, question_data: UpdateQuestionModel):
+    existing_question = await question_collection.find_one({"_id": ObjectId(question_id)})
+    if existing_question is None:
+        return None
+    
+    updated_data = {"$set": question_data.model_dump(exclude_unset=True)}
+    if not updated_data["$set"]:
+        return existing_question
+    
+    await question_collection.update_one({"_id": ObjectId(question_id)}, updated_data)
+    return await question_collection.find_one({"_id": ObjectId(question_id)})

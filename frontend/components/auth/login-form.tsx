@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useAuth } from "@/app/auth/auth-context";
 import { useRouter } from "next/navigation";
-import { useToast } from "../hooks/use-toast";
+import { useToast } from "@/components/hooks/use-toast";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 export function LoginForm() {
@@ -28,13 +28,17 @@ export function LoginForm() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const user = await auth?.login(email, password);
-    if (user?.isAdmin) {
-      router.push("/app/admin-user-management");
-    } else if (user) {
-      router.push("/");
-    } else {
-      toast({ title: "Error", description: "Login Failed." });
+    try {
+      const user = await auth?.login(email, password);
+      if (user?.isAdmin) {
+        router.push("/app/admin-user-management");
+      } else if (user) {
+        router.push("/app/questions");
+      } else {
+        toast({ title: "Error", variant: "destructive", description: "Login Failed." });
+      }
+    } catch (err) {
+      toast({ title: "Error", variant: "destructive", description: "Login Failed." });
     }
   };
 

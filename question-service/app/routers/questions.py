@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException
-
-from app.models.questions import CreateQuestionModel, QuestionModel, QuestionCollection, MessageModel
-from app.crud.questions import create_question, get_all_questions, get_question_by_id, delete_question
+from app.models.questions import CreateQuestionModel, UpdateQuestionModel, QuestionModel, QuestionCollection, MessageModel
+from app.crud.questions import create_question, get_all_questions, get_question_by_id, delete_question, update_question_by_id
 
 router = APIRouter()
 
@@ -43,3 +42,11 @@ async def delete(question_id: str):
     if response is None:
         raise HTTPException(status_code=404, detail="Question with this id does not exist.")
     return response
+
+@router.put("/{question_id}", response_description="Update question with specified id", response_model=QuestionModel)
+async def update_question(question_id: str, question_data: UpdateQuestionModel):
+    updated_question = await update_question_by_id(question_id, question_data)
+    if updated_question is None:
+        raise HTTPException(status_code=404, detail="Question with this id does not exist.")
+    
+    return updated_question
