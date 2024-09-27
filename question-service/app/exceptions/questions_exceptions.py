@@ -1,3 +1,9 @@
+class InvalidQuestionIdError(Exception):
+    """Raised when a question id cannot be parsed properly"""
+    def __init__(self, question_id):
+        self.question_id = question_id
+        super().__init__(f"Question ID '{question_id}' is invalid and cannot be parsed properly.")
+
 class DuplicateQuestionError(Exception):
     """Raised when a question with the same title already exists."""
     def __init__(self, title):

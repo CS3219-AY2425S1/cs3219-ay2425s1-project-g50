@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from app.models.questions import CreateQuestionModel, UpdateQuestionModel, QuestionModel, QuestionCollection, MessageModel
 from app.crud.questions import create_question, get_all_questions, get_question_by_id, delete_question, update_question_by_id, batch_create_questions
-from app.exceptions.questions_exceptions import DuplicateQuestionError, QuestionNotFoundError, BatchUploadFailedError
+from app.exceptions.questions_exceptions import DuplicateQuestionError, QuestionNotFoundError, BatchUploadFailedError, InvalidQuestionIdError
 from typing import List
 router = APIRouter()
 
@@ -34,6 +34,8 @@ async def get_all():
 async def get_question(question_id: str):
     try:
         return await get_question_by_id(question_id)
+    except InvalidQuestionIdError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except QuestionNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -42,6 +44,8 @@ async def delete(question_id: str):
     try:
         response = await delete_question(question_id)
         return response
+    except InvalidQuestionIdError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except QuestionNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -50,6 +54,8 @@ async def update_question(question_id: str, question_data: UpdateQuestionModel):
     try:
         updated_question = await update_question_by_id(question_id, question_data)
         return updated_question
+    except InvalidQuestionIdError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except QuestionNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except DuplicateQuestionError as e:

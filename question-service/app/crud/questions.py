@@ -1,6 +1,7 @@
 from app.models.questions import CreateQuestionModel, UpdateQuestionModel, QuestionCollection, QuestionModel, MessageModel
-from app.exceptions.questions_exceptions import DuplicateQuestionError, QuestionNotFoundError, BatchUploadFailedError
+from app.exceptions.questions_exceptions import DuplicateQuestionError, QuestionNotFoundError, BatchUploadFailedError, InvalidQuestionIdError
 from bson import ObjectId
+from bson.errors import InvalidId
 from dotenv import load_dotenv
 import motor.motor_asyncio
 from typing import List
@@ -28,20 +29,35 @@ async def get_all_questions() -> QuestionCollection:
     return QuestionCollection(questions=questions)
 
 async def get_question_by_id(question_id: str) -> QuestionModel:
-    existing_question = await question_collection.find_one({"_id": ObjectId(question_id)})
+    try:
+        object_id = ObjectId(question_id)
+    except InvalidId:
+        raise InvalidQuestionIdError(question_id)
+    
+    existing_question = await question_collection.find_one({"_id": object_id})
     if existing_question is None:
         raise QuestionNotFoundError(question_id)
     return existing_question
 
 async def delete_question(question_id: str) -> MessageModel:
-    existing_question = await question_collection.find_one({"_id": ObjectId(question_id)})
+    try:
+        object_id = ObjectId(question_id)
+    except InvalidId:
+        raise InvalidQuestionIdError(question_id)
+    
+    existing_question = await question_collection.find_one({"_id": object_id})
     if existing_question is None:
         raise QuestionNotFoundError(question_id)
     await question_collection.delete_one({"_id": ObjectId(question_id)})
     return {"message": f"Question with id {existing_question['_id']} and title '{existing_question['title']}' deleted."}
 
 async def update_question_by_id(question_id: str, question_data: UpdateQuestionModel) -> QuestionModel:
-    existing_question = await question_collection.find_one({"_id": ObjectId(question_id)})
+    try:
+        object_id = ObjectId(question_id)
+    except InvalidId:
+        raise InvalidQuestionIdError(question_id)
+    
+    existing_question = await question_collection.find_one({"_id": object_id})
     
     if existing_question is None:
         raise QuestionNotFoundError(question_id)
