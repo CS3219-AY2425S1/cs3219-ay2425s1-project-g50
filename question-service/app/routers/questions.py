@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from app.models.questions import CreateQuestionModel, UpdateQuestionModel, QuestionModel, QuestionCollection, MessageModel
-from app.crud.questions import create_question, get_all_questions, get_question_by_id, delete_question, update_question_by_id
+from app.crud.questions import create_question, get_all_questions, get_question_by_id, delete_question, update_question_by_id, batch_create_questions
+from app.exceptions.questions_exceptions import DuplicateQuestionError, QuestionNotFoundError, BatchUploadFailedError
 from typing import List
-from app.crud.questions import batch_create_questions
 router = APIRouter()
 
 @router.post("/",
@@ -21,10 +21,10 @@ router = APIRouter()
                 ,
             })
 async def create(question: CreateQuestionModel):
-    existing_question = await create_question(question)
-    if existing_question is None:
-        raise HTTPException(status_code=409, detail="Question with this title already exists.")
-    return existing_question
+    try:
+        return await create_question(question)
+    except DuplicateQuestionError as e:
+        raise HTTPException(status_code=409, detail=str(e))
 
 @router.get("/", response_description="Get all questions", response_model=QuestionCollection)
 async def get_all():
@@ -32,31 +32,29 @@ async def get_all():
 
 @router.get("/{question_id}", response_description="Get question with specified id", response_model=QuestionModel)
 async def get_question(question_id: str):
-    existing_question: QuestionModel = await get_question_by_id(question_id)
-    if existing_question is None:
-        raise HTTPException(status_code=404, detail="Question with this id does not exist.")
-    return existing_question
+    try:
+        return await get_question_by_id(question_id)
+    except QuestionNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 @router.delete("/{question_id}", response_description="Delete question with specified id", response_model=MessageModel)
 async def delete(question_id: str):
-    response = await delete_question(question_id)
-    if response is None:
-        raise HTTPException(status_code=404, detail="Question with this id does not exist.")
-    return response
+    try:
+        response = await delete_question(question_id)
+        return response
+    except QuestionNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 @router.put("/{question_id}", response_description="Update question with specified id", response_model=QuestionModel)
 async def update_question(question_id: str, question_data: UpdateQuestionModel):
-    updated_question = await update_question_by_id(question_id, question_data)
+    try:
+        updated_question = await update_question_by_id(question_id, question_data)
+        return updated_question
+    except QuestionNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except DuplicateQuestionError as e:
+        raise HTTPException(status_code=409, detail=str(e))
     
-    if updated_question is None:
-        raise HTTPException(status_code=404, detail="Question with this id does not exist.")
-    
-    if updated_question == "duplicate_title":
-        raise HTTPException(status_code=409, detail="A question with this title already exists.")
-    
-    return updated_question
-
-
 @router.post("/batch-upload",
              response_description="Batch upload questions",
              response_model=MessageModel,
@@ -72,7 +70,8 @@ async def update_question(question_id: str, question_data: UpdateQuestionModel):
                  },
              })
 async def batch_upload(questions: List[CreateQuestionModel]):
-    result = await batch_create_questions(questions)
-    if "error" in result:
-        raise HTTPException(status_code=400, detail=result["error"])
-    return result
+    try:
+        result = await batch_create_questions(questions)
+        return result
+    except BatchUploadFailedError as e:
+        raise HTTPException(status_code=400, detail=str(e))
