@@ -12,7 +12,7 @@ export const updateUser = async (
 
   const body = { username, email, password, skillLevel };
 
-  const response = await fetch(`http://localhost:3001/users/${id}`, {
+  const response = await fetch(`http://34.124.183.106:3001/users/${id}`, {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${jwtToken}`,

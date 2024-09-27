@@ -47,7 +47,7 @@ const fetcher = (url: string) => {
 
 export default function UserSettings({ userId }: { userId: string }) {
   const { data, error, isLoading, mutate } = useSWR(
-    `http://localhost:3001/users/${userId}`,
+    `http://34.124.183.106:3001/users/${userId}`,
     fetcher
   );
   const [user, setUser] = useState<{
@@ -126,14 +126,17 @@ export default function UserSettings({ userId }: { userId: string }) {
       }
 
       try {
-        const response = await fetch(`http://localhost:3001/users/${userId}`, {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(user),
-        });
+        const response = await fetch(
+          `http://34.124.183.106:3001/users/${userId}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(user),
+          }
+        );
         if (!response.ok) throw new Error("Failed to save changes");
 
         console.log("Changes saved successfully!");

@@ -55,7 +55,7 @@ export default function QuestionListing() {
   const [search, setSearch] = useState(searchParams.get("search") || "");
 
   const { data, isLoading, mutate } = useSWR(
-    `http://localhost:8000/questions?category=${encodeURIComponent(category)}&complexity=${encodeURIComponent(complexity)}&search=${encodeURIComponent(search)}`,
+    `http://34.124.183.106:8000/questions?category=${encodeURIComponent(category)}&complexity=${encodeURIComponent(complexity)}&search=${encodeURIComponent(search)}`,
     fetcher,
     {
       keepPreviousData: true,
@@ -144,7 +144,7 @@ export default function QuestionListing() {
     try {
       const token = localStorage.getItem("jwtToken");
       const response = await fetch(
-        "http://localhost:8000/questions/batch-upload",
+        "http://34.124.183.106:8000/questions/batch-upload",
         {
           method: "POST",
           headers: {
@@ -189,7 +189,7 @@ export default function QuestionListing() {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/questions/${selectedQuestion.id}`,
+        `http://34.124.183.106:8000/questions/${selectedQuestion.id}`,
         {
           method: "DELETE",
         }
@@ -262,7 +262,7 @@ export default function QuestionListing() {
 
   const handleCreate = async (newQuestion: Question) => {
     try {
-      const response = await fetch("http://localhost:8000/questions", {
+      const response = await fetch("http://34.124.183.106:8000/questions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

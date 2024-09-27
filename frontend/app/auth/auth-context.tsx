@@ -32,7 +32,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Login using locally stored JWT token
   useEffect(() => {
     if (token) {
-      fetch("http://localhost:3001/auth/verify-token", {
+      fetch("http://34.124.183.106:3001/auth/verify-token", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -51,7 +51,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   // Login using email and password
   const login = async (email: string, password: string): Promise<User> => {
-    const response = await fetch("http://localhost:3001/auth/login", {
+    const response = await fetch("http://34.124.183.106:3001/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -44,7 +44,7 @@ export default function AdminUserManagement() {
   const auth = useAuth();
 
   const { data, isLoading, mutate } = useSWR(
-    "http://localhost:3001/users",
+    "http://34.124.183.106:3001/users",
     fetcher
   );
 
@@ -68,7 +68,7 @@ export default function AdminUserManagement() {
       throw new Error("No authentication token found");
     }
 
-    const response = await fetch(`http://localhost:3001/users/${userId}`, {
+    const response = await fetch(`http://34.124.183.106:3001/users/${userId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,

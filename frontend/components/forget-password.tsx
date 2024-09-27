@@ -35,7 +35,7 @@ const ForgetPassword: React.FC = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:3001/users/forget-password",
+        "http://34.124.183.106:3001/users/forget-password",
         {
           method: "POST",
           headers: {
