@@ -19,7 +19,7 @@ question_collection = db.get_collection("questions")
 async def create_question(question: CreateQuestionModel) -> QuestionModel:
     existing_question = await question_collection.find_one({"title": question.title})
     if existing_question:
-        raise DuplicateQuestionError(f"Question with title '{question.title}' already exists.")
+        raise DuplicateQuestionError(question.title)
     new_question = await question_collection.insert_one(question.model_dump())
     return await question_collection.find_one({"_id": new_question.inserted_id})
 
@@ -30,13 +30,13 @@ async def get_all_questions() -> QuestionCollection:
 async def get_question_by_id(question_id: str) -> QuestionModel:
     existing_question = await question_collection.find_one({"_id": ObjectId(question_id)})
     if existing_question is None:
-        raise QuestionNotFoundError(f"Question with id '{question_id}' cannot be found.")
+        raise QuestionNotFoundError(question_id)
     return existing_question
 
 async def delete_question(question_id: str) -> MessageModel:
     existing_question = await question_collection.find_one({"_id": ObjectId(question_id)})
     if existing_question is None:
-        raise QuestionNotFoundError(f"Question with id '{question_id}' cannot be found.")
+        raise QuestionNotFoundError(question_id)
     await question_collection.delete_one({"_id": ObjectId(question_id)})
     return {"message": f"Question with id {existing_question['_id']} and title '{existing_question['title']}' deleted."}
 
@@ -44,7 +44,7 @@ async def update_question_by_id(question_id: str, question_data: UpdateQuestionM
     existing_question = await question_collection.find_one({"_id": ObjectId(question_id)})
     
     if existing_question is None:
-        raise QuestionNotFoundError(f"Question with id '{question_id}' cannot be found.")
+        raise QuestionNotFoundError(question_id)
 
     update_data = question_data.model_dump(exclude_unset=True)
 
@@ -52,7 +52,7 @@ async def update_question_by_id(question_id: str, question_data: UpdateQuestionM
     if "title" in update_data and update_data["title"] != existing_question["title"]:
         existing_title = await question_collection.find_one({"title": update_data["title"]})
         if existing_title and str(existing_title["_id"]) != question_id:
-            raise DuplicateQuestionError(f"Question with title '{existing_title["title"]}' already exists.")
+            raise DuplicateQuestionError(existing_title["title"])
     
     if not update_data:
         return existing_question
@@ -68,7 +68,7 @@ async def batch_create_questions(questions: List[CreateQuestionModel]) -> Messag
             new_questions.append(question.model_dump())
 
     if not new_questions:
-        raise BatchUploadFailedError("No questions were added successfully.")
+        raise BatchUploadFailedError()
     
     result = await question_collection.insert_many(new_questions)
     return {"message": f"{len(result.inserted_ids)} questions added successfully."}
