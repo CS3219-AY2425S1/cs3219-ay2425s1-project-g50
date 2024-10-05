@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from app.models.questions import CreateQuestionModel, UpdateQuestionModel, QuestionModel, QuestionCollection, MessageModel
-from app.crud.questions import create_question, get_all_questions, get_question_by_id, delete_question, update_question_by_id, batch_create_questions
-from app.exceptions.questions_exceptions import DuplicateQuestionError, QuestionNotFoundError, BatchUploadFailedError, InvalidQuestionIdError
+from models.questions import CreateQuestionModel, UpdateQuestionModel, QuestionModel, QuestionCollection, MessageModel
+from crud.questions import create_question, get_all_questions, get_question_by_id, delete_question, update_question_by_id, batch_create_questions
+from exceptions.questions_exceptions import DuplicateQuestionError, QuestionNotFoundError, BatchUploadFailedError, InvalidQuestionIdError
 from typing import List
 router = APIRouter()
 

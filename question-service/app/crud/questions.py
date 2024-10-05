@@ -1,5 +1,5 @@
-from app.models.questions import CreateQuestionModel, UpdateQuestionModel, QuestionCollection, QuestionModel, MessageModel
-from app.exceptions.questions_exceptions import DuplicateQuestionError, QuestionNotFoundError, BatchUploadFailedError, InvalidQuestionIdError
+from models.questions import CreateQuestionModel, UpdateQuestionModel, QuestionCollection, QuestionModel, MessageModel
+from exceptions.questions_exceptions import DuplicateQuestionError, QuestionNotFoundError, BatchUploadFailedError, InvalidQuestionIdError
 from bson import ObjectId
 from bson.errors import InvalidId
 from dotenv import load_dotenv
@@ -10,10 +10,10 @@ import os
 # Load env variables
 load_dotenv()
 
-DB_CLOUD_URI = os.getenv("DB_CLOUD_URI")
+DB_URI = os.getenv("DB_URI")
 
 # Setup MongoDB client
-client = motor.motor_asyncio.AsyncIOMotorClient(DB_CLOUD_URI)
+client = motor.motor_asyncio.AsyncIOMotorClient(DB_URI)
 db = client.get_database("question_service")
 question_collection = db.get_collection("questions")
 

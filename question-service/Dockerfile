@@ -1,12 +1,7 @@
-FROM python:3.12-slim AS setup
+FROM python:3.12-slim AS base
 WORKDIR /app
 COPY requirements.txt .
 RUN python -m venv .venv
 RUN .venv/bin/pip install --no-cache-dir -r requirements.txt
 COPY . .
-
-FROM setup AS dev
-CMD ["sh", "-c", ".venv/bin/fastapi dev app/main.py --port ${PORT}"]
-
-FROM setup AS prod
-CMD ["sh", "-c", ".venv/bin/fastapi run app/main.py --port ${PORT}"]
+CMD [".venv/bin/python", "app/main.py"]

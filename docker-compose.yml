@@ -2,7 +2,6 @@ services:
   frontend:
     build:
       context: ./frontend
-      target: $BUILD_ENV
     ports:
       - $FRONTEND_PORT:$FRONTEND_PORT
     depends_on:
@@ -12,27 +11,20 @@ services:
   question-service:
     build:
       context: ./question-service
-      target: $BUILD_ENV
     ports:
       - $QUESTION_SVC_PORT:$QUESTION_SVC_PORT
     environment:
       - PORT=$QUESTION_SVC_PORT
-      - DB_CLOUD_URI=$QUESTION_SVC_DB_URI
+      - DB_URI=$QUESTION_SVC_DB_URI
   
   user-service:
     build:
       context: ./user-service
-      target: $BUILD_ENV
     ports:
       - $USER_SVC_PORT:$USER_SVC_PORT
     environment:
-      - ENV=$USER_SVC_ENV
       - PORT=$USER_SVC_PORT
-      - DB_CLOUD_URI=$USER_SVC_DB_URI
-      - DB_LOCAL_URI=$USER_SVC_DB_LOCAL_URI
+      - DB_URI=$USER_SVC_DB_URI
       - JWT_SECRET=$JWT_SECRET
       - EMAIL_ADDRESS=$EMAIL_ADDRESS
       - EMAIL_PASSWORD=$EMAIL_PASSWORD
-    volumes:
-      - ./user-service:/app
-      - /app/node_modules
