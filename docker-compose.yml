@@ -1,0 +1,30 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - $FRONTEND_PORT:$FRONTEND_PORT
+    depends_on:
+      - question-service
+      - user-service
+
+  question-service:
+    build:
+      context: ./question-service
+    ports:
+      - $QUESTION_SVC_PORT:$QUESTION_SVC_PORT
+    environment:
+      - PORT=$QUESTION_SVC_PORT
+      - DB_URI=$QUESTION_SVC_DB_URI
+  
+  user-service:
+    build:
+      context: ./user-service
+    ports:
+      - $USER_SVC_PORT:$USER_SVC_PORT
+    environment:
+      - PORT=$USER_SVC_PORT
+      - DB_URI=$USER_SVC_DB_URI
+      - JWT_SECRET=$JWT_SECRET
+      - EMAIL_ADDRESS=$EMAIL_ADDRESS
+      - EMAIL_PASSWORD=$EMAIL_PASSWORD
