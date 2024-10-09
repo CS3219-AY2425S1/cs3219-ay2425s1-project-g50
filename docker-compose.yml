@@ -39,6 +39,8 @@ services:
       - 27017:27017
     volumes:
       - mongodb_question_data:/data/db
+      - ./init-mongo-scripts/init-mongo-questions.sh:/docker-entrypoint-initdb.d/init-mongo-questions.sh:ro
+
 
   mongodb-user:
     image: mongo:latest
@@ -47,14 +49,6 @@ services:
     volumes:
       - mongodb_user_data:/data/db
       - ./init-mongo-scripts/init-mongo-user.sh:/docker-entrypoint-initdb.d/init-mongo-user.sh:ro
-
-
-  # mongodb-user:
-  #   image: mongo:latest
-  #   ports:
-  #     - 27018:27017
-  #   volumes:
-  #     - mongodb_user_data:/data/db
 
 volumes:
   mongodb_question_data:

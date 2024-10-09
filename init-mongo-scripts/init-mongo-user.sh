@@ -9,4 +9,13 @@ db.usermodels.insertOne({
   isAdmin: true
 });
 print("Admin user created.");
+
+// password: notadmin
+db.usermodels.insertOne({
+  username: "notadmin",
+  email: "notadmin@gmail.com",
+  password: "\$2b\$10\$LgHKho0/lAJz.qQUHFyXEu/39v86mhu3ILaeWFIIk7He90CMQZvYu",
+  isAdmin: false
+});
+print("Notadmin user created.");
 EOF
