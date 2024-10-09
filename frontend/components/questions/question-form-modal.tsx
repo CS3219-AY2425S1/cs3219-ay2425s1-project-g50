@@ -30,14 +30,16 @@ interface QuestionFormModalProps {
 }
 
 const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
+  const initialQuestionState: Question = {
+    id: "",
+    title: "",
+    category: "",
+    complexity: "easy",
+    description: "",
+  };
+
   const [question, setQuestion] = useState<Question>(
-    props.initialData || {
-      id: "",
-      title: "",
-      category: "",
-      complexity: "easy",
-      description: "",
-    }
+    props.initialData || initialQuestionState
   );
 
   useEffect(() => {
@@ -50,6 +52,16 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
     e.preventDefault();
 
     props.handleSubmit(question);
+    setQuestion(initialQuestionState);
+  };
+
+  const handleExit = () => {
+    if (props.initialData) {
+      setQuestion(props.initialData);
+    } else {
+      setQuestion(initialQuestionState);
+    }
+    props.setShowModal(false);
   };
 
   return (
@@ -136,10 +148,7 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
                 {props.isAdmin && (
                   <Button type="submit">{props.submitButtonText}</Button>
                 )}
-                <Button
-                  variant="destructive"
-                  onClick={() => props.setShowModal(false)}
-                >
+                <Button variant="destructive" onClick={handleExit}>
                   Exit
                 </Button>
               </DialogFooter>
