@@ -16,6 +16,8 @@ services:
     environment:
       - PORT=$QUESTION_SVC_PORT
       - DB_URI=$QUESTION_SVC_DB_URI
+    depends_on:
+      - mongodb-question
   
   user-service:
     build:
@@ -28,3 +30,26 @@ services:
       - JWT_SECRET=$JWT_SECRET
       - EMAIL_ADDRESS=$EMAIL_ADDRESS
       - EMAIL_PASSWORD=$EMAIL_PASSWORD
+    depends_on:
+      - mongodb-user
+
+  mongodb-question:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_question_data:/data/db
+      - ./init-mongo-scripts/init-mongo-questions.sh:/docker-entrypoint-initdb.d/init-mongo-questions.sh:ro
+
+
+  mongodb-user:
+    image: mongo:latest
+    ports:
+      - 27018:27017
+    volumes:
+      - mongodb_user_data:/data/db
+      - ./init-mongo-scripts/init-mongo-user.sh:/docker-entrypoint-initdb.d/init-mongo-user.sh:ro
+
+volumes:
+  mongodb_question_data:
+  mongodb_user_data:
