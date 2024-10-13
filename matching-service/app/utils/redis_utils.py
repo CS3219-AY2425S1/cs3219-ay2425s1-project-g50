@@ -1,7 +1,7 @@
 import os
 import redis.asyncio as redis
 from models.match import MatchData
-
+import asyncio
 match_channel = 'match_channel'
 
 # Initialize Redis client
@@ -13,11 +13,22 @@ async def get_redis():
     return redis.Redis(host=redis_host, port=int(redis_port), db=0, decode_responses=True)
 
 
-async def acquire_lock(redis_client, queue_key, lock_timeout_ms=30000) -> bool:
+async def acquire_lock(redis_client, queue_key, lock_timeout_ms=30000, retry_interval_ms=100, max_retries=100) -> bool:
     lock_key = f"{queue_key}:lock"
-    locked = await redis_client.set(lock_key, "locked", nx=True, px=lock_timeout_ms)
-    print(f"Lock acquired for {queue_key}: {locked}")
-    return locked
+    retries = 0
+
+    while retries < max_retries:
+        locked = await redis_client.set(lock_key, "locked", nx=True, px=lock_timeout_ms)
+        if locked:
+            print(f"Lock acquired for {queue_key}: {locked}")
+            return True
+        else:
+            print(f"Failed {retries} times to acquire lock for {queue_key}, retrying...")
+            retries += 1
+            # Convert ms to seconds
+            await asyncio.sleep(retry_interval_ms / 1000)
+
+    return False
 
 
 async def release_lock(redis_client, queue_key) -> None:
