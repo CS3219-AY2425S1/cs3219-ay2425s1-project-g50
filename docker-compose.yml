@@ -46,3 +46,12 @@ services:
     restart: always
     ports:
       - 6379:6379
+
+  # access RedisInsight at http://localhost:5540
+  redisinsight:
+    image: redis/redisinsight:latest
+    restart: always
+    ports:
+      - 5540:5540  # Expose RedisInsight UI on port 5540
+    depends_on:
+      - redis
