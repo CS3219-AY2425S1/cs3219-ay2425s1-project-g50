@@ -36,6 +36,10 @@ services:
       - $MATCHING_SVC_PORT:$MATCHING_SVC_PORT
     environment:
       - PORT=$MATCHING_SVC_PORT
+      - REDIS_HOST=redis
+      - REDIS_PORT=$MATCHING_SVC_REDIS_PORT
+    depends_on:
+      - redis
 
   redis:
     image: redis:7.4-alpine
