@@ -13,17 +13,17 @@ async def get_redis():
     return redis.Redis(host=redis_host, port=int(redis_port), db=0, decode_responses=True)
 
 
-async def acquire_lock(redis_client, queue_key, lock_timeout_ms=30000, retry_interval_ms=100, max_retries=100) -> bool:
-    lock_key = f"{queue_key}:lock"
+async def acquire_lock(redis_client, key, lock_timeout_ms=30000, retry_interval_ms=100, max_retries=100) -> bool:
+    lock_key = f"{key}:lock"
     retries = 0
 
     while retries < max_retries:
         locked = await redis_client.set(lock_key, "locked", nx=True, px=lock_timeout_ms)
         if locked:
-            print(f"Lock acquired for {queue_key}: {locked}")
+            print(f"Lock acquired for {key}: {locked}")
             return True
         else:
-            print(f"Failed {retries} times to acquire lock for {queue_key}, retrying...")
+            print(f"Failed {retries} times to acquire lock for {key}, retrying...")
             retries += 1
             # Convert ms to seconds
             await asyncio.sleep(retry_interval_ms / 1000)
@@ -31,10 +31,10 @@ async def acquire_lock(redis_client, queue_key, lock_timeout_ms=30000, retry_int
     return False
 
 
-async def release_lock(redis_client, queue_key) -> None:
-    lock_key = f"{queue_key}:lock"
+async def release_lock(redis_client, key) -> None:
+    lock_key = f"{key}:lock"
     await redis_client.delete(lock_key)
-    print(f"Lock released for {queue_key}")
+    print(f"Lock released for {key}")
 
 
 # async def release_lock(redis_client, queue_key) -> None:
@@ -94,16 +94,31 @@ async def find_match_else_enqueue(user_id, topic, difficulty):
     await release_lock(redis_client, queue_key)
     print(result)
     return result
+    
 
-    # # Check for users in the queue with the same topic and difficulty
-    # queue_length = await redis_client.llen(queue_key)
-    # if queue_length > 1:  # There's at least one other user waiting
-    #     for _ in range(queue_length):
-    #         matched_user = await redis_client.rpop(queue_key)  # Pop the first user in queue
-    #         if matched_user != user_id:
-    #             # Remove the current user from the queue
-    #             await redis_client.lrem(queue_key, count=1, value=user_id)
-    #             return matched_user
+async def remove_user_from_queue(user_id, topic, difficulty):
+    redis_client = await get_redis()
+    queue_key = build_queue_key(topic, difficulty)
 
-    # # No match found
-    # return None
+    # ACQUIRE LOCK
+    islocked = await acquire_lock(redis_client, queue_key)
+
+    if not islocked:
+        raise Exception("Could not acquire lock")
+
+    # Check if the user is already in the queue
+    user_in_queue = await redis_client.lrange(queue_key, 0, -1)
+    print("checking if user is in queue")
+    if user_id in user_in_queue:
+        await redis_client.lrem(queue_key, 0, user_id)
+        result = {"message": f"User {
+            user_id} removed from the queue"}
+    else:
+        result = {"message": f"User {
+            user_id} is not in the queue"}
+
+    # RELEASE LOCK
+    await release_lock(redis_client, queue_key)
+    print(result)
+    return result
+

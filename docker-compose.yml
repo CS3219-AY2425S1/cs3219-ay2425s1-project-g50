@@ -48,6 +48,7 @@ services:
       - 6379:6379
 
   # access RedisInsight at http://localhost:5540
+  # connect to redis at redis:6379
   redisinsight:
     image: redis/redisinsight:latest
     restart: always
