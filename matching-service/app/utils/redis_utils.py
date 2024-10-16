@@ -20,10 +20,8 @@ async def acquire_lock(redis_client, key, lock_timeout_ms=30000, retry_interval_
     while retries < max_retries:
         locked = await redis_client.set(lock_key, "locked", nx=True, px=lock_timeout_ms)
         if locked:
-            print(f"Lock acquired for {key}: {locked}")
             return True
         else:
-            print(f"Failed {retries} times to acquire lock for {key}, retrying...")
             retries += 1
             # Convert ms to seconds
             await asyncio.sleep(retry_interval_ms / 1000)
@@ -34,12 +32,6 @@ async def acquire_lock(redis_client, key, lock_timeout_ms=30000, retry_interval_
 async def release_lock(redis_client, key) -> None:
     lock_key = f"{key}:lock"
     await redis_client.delete(lock_key)
-    print(f"Lock released for {key}")
-
-
-# async def release_lock(redis_client, queue_key) -> None:
-#     lock_key = f"{queue_key}:lock"
-#     await redis_client.delete(lock_key)
 
 
 # Helper function to build a unique queue key based on topic and difficulty
@@ -73,7 +65,6 @@ async def find_match_else_enqueue(user_id, topic, difficulty):
 
     # Check if the user is already in the queue
     user_in_queue = await redis_client.lrange(queue_key, 0, -1)
-    print("checking if user is in queue")
     if user_id in user_in_queue:
         result = {"message": f"User {
             user_id} is already in the queue, waiting for a match"}
@@ -92,9 +83,8 @@ async def find_match_else_enqueue(user_id, topic, difficulty):
 
     # RELEASE LOCK
     await release_lock(redis_client, queue_key)
-    print(result)
     return result
-    
+
 
 async def remove_user_from_queue(user_id, topic, difficulty):
     redis_client = await get_redis()
@@ -108,7 +98,6 @@ async def remove_user_from_queue(user_id, topic, difficulty):
 
     # Check if the user is already in the queue
     user_in_queue = await redis_client.lrange(queue_key, 0, -1)
-    print("checking if user is in queue")
     if user_id in user_in_queue:
         await redis_client.lrem(queue_key, 0, user_id)
         result = {"message": f"User {
@@ -119,6 +108,4 @@ async def remove_user_from_queue(user_id, topic, difficulty):
 
     # RELEASE LOCK
     await release_lock(redis_client, queue_key)
-    print(result)
     return result
-

@@ -37,7 +37,7 @@ services:
     environment:
       - PORT=$MATCHING_SVC_PORT
       - REDIS_HOST=redis
-      - REDIS_PORT=$MATCHING_SVC_REDIS_PORT
+      - REDIS_PORT=$REDIS_PORT
     depends_on:
       - redis
 
@@ -45,14 +45,14 @@ services:
     image: redis:7.4-alpine
     restart: always
     ports:
-      - 6379:6379
+      - $REDIS_PORT:$REDIS_PORT
 
   # access RedisInsight at http://localhost:5540
-  # connect to redis at redis:6379
+  # connect to redis on redis insight at redis:6379
   redisinsight:
     image: redis/redisinsight:latest
     restart: always
     ports:
-      - 5540:5540  # Expose RedisInsight UI on port 5540
+      - $REDIS_INSIGHT_PORT:$REDIS_INSIGHT_PORT  # Expose RedisInsight UI on port 5540
     depends_on:
       - redis
