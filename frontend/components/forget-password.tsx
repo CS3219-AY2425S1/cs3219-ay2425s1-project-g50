@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { userServiceUri } from "@/lib/api-uri";
+import { userServiceUri } from "@/lib/api/api-uri";
 
 const ForgetPassword: React.FC = () => {
   const [email, setEmail] = useState("");

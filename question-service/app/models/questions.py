@@ -2,12 +2,22 @@ from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Optional
 
-from .object_id import PyObjectId
+from models.object_id import PyObjectId
 
 class ComplexityEnum(str, Enum):
-    easy = "easy"
-    medium = "medium"
-    hard = "hard"
+    easy = "Easy"
+    medium = "Medium"
+    hard = "Hard"
+
+class CategoryEnum(str, Enum):
+    algorithms      = "Algorithms"
+    arrays          = "Arrays"
+    bitmanipulation = "Bit Manipulation"
+    brainteaser     = "Brainteaser"
+    databases       = "Databases"
+    datastructures  = "Data Structures"
+    recursion       = "Recursion"
+    strings         = "Strings"
 
 class QuestionModel(BaseModel):
     model_config = ConfigDict(
@@ -18,7 +28,7 @@ class QuestionModel(BaseModel):
     id: Optional[PyObjectId] = Field(validation_alias="_id", default=None)
     title: str
     description: str
-    category: str
+    categories: List[CategoryEnum]
     complexity: ComplexityEnum
 
 class QuestionCollection(BaseModel):
@@ -27,13 +37,13 @@ class QuestionCollection(BaseModel):
 class CreateQuestionModel(BaseModel):
     title: str
     description: str
-    category: str
+    categories: List[CategoryEnum]
     complexity: ComplexityEnum
     
 class UpdateQuestionModel(BaseModel):
     title: str
     description: str
-    category: str
+    categories: List[CategoryEnum]
     complexity: ComplexityEnum
     
 class MessageModel(BaseModel):

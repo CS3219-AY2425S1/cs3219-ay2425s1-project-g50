@@ -25,7 +25,7 @@ import { useAuth } from "@/app/auth/auth-context";
 import { cn } from "@/lib/utils";
 import { User, UserSchema } from "@/lib/schemas/user-schema";
 import { isPasswordComplex } from "@/lib/password";
-import { userServiceUri } from "@/lib/api-uri";
+import { userServiceUri } from "@/lib/api/api-uri";
 
 const fetcher = async (url: string): Promise<User> => {
   // Retrieve the JWT token from localStorage

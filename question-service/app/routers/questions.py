@@ -1,8 +1,32 @@
-from fastapi import APIRouter, HTTPException
-from models.questions import CreateQuestionModel, UpdateQuestionModel, QuestionModel, QuestionCollection, MessageModel
-from crud.questions import create_question, get_all_questions, get_question_by_id, delete_question, update_question_by_id, batch_create_questions
-from exceptions.questions_exceptions import DuplicateQuestionError, QuestionNotFoundError, BatchUploadFailedError, InvalidQuestionIdError
-from typing import List
+from typing import Annotated, List
+
+from crud.questions import (
+    batch_create_questions,
+    create_question,
+    delete_question,
+    get_all_questions,
+    get_question_by_id,
+    get_question_categories,
+    get_question_complexities,
+    update_question_by_id,
+)
+from exceptions.questions_exceptions import (
+    DuplicateQuestionError,
+    QuestionNotFoundError,
+    BatchUploadFailedError,
+    InvalidQuestionIdError,
+)
+from fastapi import APIRouter, HTTPException, Query
+from models.questions import (
+    CategoryEnum,
+    ComplexityEnum,
+    CreateQuestionModel,
+    QuestionModel,
+    QuestionCollection,
+    MessageModel,
+    UpdateQuestionModel,
+)
+
 router = APIRouter()
 
 @router.post("/",
@@ -27,7 +51,11 @@ async def create(question: CreateQuestionModel):
         raise HTTPException(status_code=409, detail=str(e))
 
 @router.get("/", response_description="Get all questions", response_model=QuestionCollection)
-async def get_all(category: str = None, complexity: str = None, search: str = None):
+async def get_all(
+    category:   Annotated[List[CategoryEnum | None] | None, Query()] = None,
+    complexity: Annotated[ComplexityEnum | None, Query()] = None,
+    search:     Annotated[str | None, Query()] = None
+):
     return await get_all_questions(category, complexity, search)
 
 @router.get("/{question_id}", response_description="Get question with specified id", response_model=QuestionModel)
@@ -42,8 +70,7 @@ async def get_question(question_id: str):
 @router.delete("/{question_id}", response_description="Delete question with specified id", response_model=MessageModel)
 async def delete(question_id: str):
     try:
-        response = await delete_question(question_id)
-        return response
+        return await delete_question(question_id)
     except InvalidQuestionIdError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except QuestionNotFoundError as e:
@@ -81,3 +108,11 @@ async def batch_upload(questions: List[CreateQuestionModel]):
         return result
     except BatchUploadFailedError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/enum/category", response_description="Get all valid question categories", response_model=List[CategoryEnum])
+async def get_categories():
+    return get_question_categories()
+
+@router.get("/enum/complexity", response_description="Get all valid question complexities", response_model=List[ComplexityEnum])
+async def get_complexities():
+    return get_question_complexities()

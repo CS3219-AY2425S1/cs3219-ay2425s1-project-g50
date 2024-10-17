@@ -1,4 +1,4 @@
-import { userServiceUri } from "@/lib/api-uri";
+import { userServiceUri } from "@/lib/api/api-uri";
 
 export const updateUser = async (
   jwtToken: string,

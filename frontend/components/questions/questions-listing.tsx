@@ -4,7 +4,11 @@ import { useAuth } from "@/app/auth/auth-context";
 import { useEffect, useState, ChangeEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
-import { Question, QuestionArraySchema } from "@/lib/schemas/question-schema";
+import {
+  CreateQuestionSchema,
+  Question,
+  QuestionArraySchema,
+} from "@/lib/schemas/question-schema";
 import LoadingScreen from "@/components/common/loading-screen";
 import DeleteQuestionModal from "@/components/questions/delete-question-modal";
 import QuestionTable from "@/components/questions/questions-table";
@@ -17,8 +21,11 @@ import {
   CreateQuestionArraySchema,
 } from "@/lib/schemas/question-schema";
 import QuestionFormModal from "./question-form-modal";
-import { updateQuestion } from "@/lib/update-question";
-import { questionServiceUri } from "@/lib/api-uri";
+import { updateQuestion } from "@/lib/api/question-service/update-question";
+import { questionServiceUri } from "@/lib/api/api-uri";
+import { createQuestion } from "@/lib/api/question-service/create-question";
+import { deleteQuestion } from "@/lib/api/question-service/delete-question";
+import { bulkCreateQuestion } from "@/lib/api/question-service/bulk-create-question";
 
 const fetcher = async (url: string): Promise<Question[]> => {
   const token = localStorage.getItem("jwtToken");
@@ -55,8 +62,22 @@ export default function QuestionListing() {
 
   const [search, setSearch] = useState(searchParams.get("search") || "");
 
+  const getUriParams: () => string = () => {
+    let uri = "?";
+    if (complexity) {
+      uri += `complexity=${encodeURIComponent(complexity)}&`;
+    }
+    if (search) {
+      uri += `search=${encodeURIComponent(search)}&`;
+    }
+    if (category) {
+      uri += `category=${encodeURIComponent(category)}`;
+    }
+    return uri;
+  };
+
   const { data, isLoading, mutate } = useSWR(
-    `${questionServiceUri(window.location.hostname)}/questions?category=${encodeURIComponent(category)}&complexity=${encodeURIComponent(complexity)}&search=${encodeURIComponent(search)}`,
+    `${questionServiceUri(window.location.hostname)}/questions${getUriParams()}`,
     fetcher,
     {
       keepPreviousData: true,
@@ -70,7 +91,7 @@ export default function QuestionListing() {
   const [selectedQuestion, setSelectedQuestion] = useState<Question>();
 
   useEffect(() => {
-    setQuestions(data ?? []);
+    setQuestions(data || []);
   }, [data]);
 
   useEffect(() => {
@@ -102,21 +123,6 @@ export default function QuestionListing() {
     setShowCreateModal(true);
   };
 
-  const createNewQuestion = () => {
-    return (
-      <div className="flex justify-end">
-        <Button
-          variant="outline"
-          className="ml-2"
-          onClick={() => handleCreateNewQuestion()}
-        >
-          <PlusIcon className="mr-2" />
-          Create New Question
-        </Button>
-      </div>
-    );
-  };
-
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -142,42 +148,41 @@ export default function QuestionListing() {
   };
 
   const handleBatchUpload = async (questions: CreateQuestion[]) => {
-    try {
-      const token = localStorage.getItem("jwtToken");
-      const response = await fetch(
-        `${questionServiceUri(window.location.hostname)}/questions/batch-upload`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(questions),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to upload questions");
-      }
-
-      const result = await response.json();
-      toast({
-        title: "Batch Upload Success",
-        description: result.message,
-      });
-
-      mutate();
-    } catch (error) {
-      toast({
-        title: "Batch Upload Failed",
-        description:
-          error instanceof Error
-            ? error.message
-            : "An error occurred while uploading questions.",
-        variant: "destructive",
-      });
+    if (!auth || !auth.token) {
+      return;
     }
+
+    const response = await bulkCreateQuestion(auth.token, questions);
+
+    const result = await response.json();
+    switch (response.status) {
+      case 200:
+        toast({
+          title: "Batch Upload Success",
+          description: result.message,
+          variant: "success",
+          duration: 3000,
+        });
+        break;
+      case 400:
+        toast({
+          title: "Batch Upload Failed",
+          description: result.detail,
+          variant: "destructive",
+          duration: 5000,
+        });
+        return;
+      default:
+        toast({
+          title: "Unknown Error",
+          description: "An unexpected error has occurred",
+          variant: "destructive",
+          duration: 5000,
+        });
+        return;
+    }
+
+    mutate();
   };
 
   const handleDelete = (question: Question) => {
@@ -186,59 +191,18 @@ export default function QuestionListing() {
   };
 
   const handleDeleteQuestion = async () => {
-    if (!selectedQuestion) return;
-
-    try {
-      const response = await fetch(
-        `${questionServiceUri(window.location.hostname)}/questions/${selectedQuestion.id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete the question");
-      }
-
-      setQuestions((prevQuestions) =>
-        prevQuestions.filter((q) => q.id !== selectedQuestion.id)
-      );
-
-      toast({
-        title: "Success",
-        description: "Question deleted successfully!",
-        variant: "success",
-        duration: 3000,
-      });
-
-      setShowDeleteModal(false);
-      setSelectedQuestion(undefined);
-    } catch (err) {
-      toast({
-        title: "An error occurred!",
-        description:
-          err instanceof Error ? err.message : "An unknown error occurred",
-        variant: "destructive",
-        duration: 5000,
-      });
+    if (!selectedQuestion?.id || !auth || !auth.token) {
+      return;
     }
-  };
 
-  const handleEdit = async (question: Question) => {
-    const response = await updateQuestion(question);
-    if (!response.ok) {
-      toast({
-        title: "Unknown Error",
-        description: "An unexpected error has occurred",
-        variant: "destructive",
-      });
-    }
+    const response = await deleteQuestion(auth.token, selectedQuestion.id);
     switch (response.status) {
       case 200:
         toast({
           title: "Success",
-          description: "Question updated successfully!",
+          description: "Question deleted successfully!",
           variant: "success",
+          duration: 3000,
         });
         break;
       case 404:
@@ -246,6 +210,44 @@ export default function QuestionListing() {
           title: "Question not found",
           description: "Question with specified ID not found",
           variant: "destructive",
+          duration: 5000,
+        });
+        break;
+      default:
+        toast({
+          title: "Unknown Error",
+          description: "An unexpected error has occurred",
+          variant: "destructive",
+          duration: 5000,
+        });
+    }
+
+    mutate();
+    setShowDeleteModal(false);
+    setSelectedQuestion(undefined);
+  };
+
+  const handleEdit = async (question: Question) => {
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const response = await updateQuestion(auth.token, question);
+    switch (response.status) {
+      case 200:
+        toast({
+          title: "Success",
+          description: "Question updated successfully!",
+          variant: "success",
+          duration: 3000,
+        });
+        break;
+      case 404:
+        toast({
+          title: "Question not found",
+          description: "Question with specified ID not found",
+          variant: "destructive",
+          duration: 5000,
         });
         return;
       case 409:
@@ -253,8 +255,16 @@ export default function QuestionListing() {
           title: "Duplicated title",
           description: "The title you entered is already in use",
           variant: "destructive",
+          duration: 5000,
         });
         return;
+      default:
+        toast({
+          title: "Unknown Error",
+          description: "An unexpected error has occurred",
+          variant: "destructive",
+          duration: 5000,
+        });
     }
 
     mutate();
@@ -262,51 +272,49 @@ export default function QuestionListing() {
   };
 
   const handleCreate = async (newQuestion: Question) => {
-    try {
-      const response = await fetch(
-        `${questionServiceUri(window.location.hostname)}/questions`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: newQuestion.title,
-            description: newQuestion.description,
-            category: newQuestion.category,
-            complexity: newQuestion.complexity,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        if (response.status == 409) {
-          throw new Error("A question with this title already exists.");
-        }
-      }
-
-      toast({
-        title: "Success",
-        description: "Question created successfully!",
-        variant: "success",
-        duration: 3000,
-      });
-
-      setShowCreateModal(false);
-      mutate();
-    } catch (err) {
-      toast({
-        title: "An error occured!",
-        description:
-          err instanceof Error ? err.message : "An unknown error occurred",
-        variant: "destructive",
-        duration: 5000,
-      });
+    if (!auth || !auth.token) {
+      return;
     }
+
+    const response = await createQuestion(
+      auth.token,
+      CreateQuestionSchema.parse(newQuestion)
+    );
+    switch (response.status) {
+      case 200:
+        toast({
+          title: "Success",
+          description: "Question created successfully!",
+          variant: "success",
+          duration: 3000,
+        });
+        break;
+      case 409:
+        toast({
+          title: "Duplicated title",
+          description: "The title you entered is already in use",
+          variant: "destructive",
+          duration: 5000,
+        });
+        return;
+      default:
+        toast({
+          title: "Unknown Error",
+          description: "An unexpected error has occurred",
+          variant: "destructive",
+          duration: 5000,
+        });
+    }
+
+    setShowCreateModal(false);
+    mutate();
   };
 
-  const handleCategoryChange = (newSearch: string) => {
-    setCategory(newSearch);
+  const handleCategoryChange = (newCategory: string) => {
+    if (newCategory === "all") {
+      newCategory = "";
+    }
+    setCategory(newCategory);
   };
 
   const handleComplexityChange = (newComplexity: string) => {
@@ -353,7 +361,18 @@ export default function QuestionListing() {
               </Button>
             </label>
           </div>
-          <div>{createNewQuestion()}</div>
+          <div>
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                className="ml-2"
+                onClick={() => handleCreateNewQuestion()}
+              >
+                <PlusIcon className="mr-2" />
+                Create New Question
+              </Button>
+            </div>
+          </div>
         </div>
       )}
       <QuestionFilter

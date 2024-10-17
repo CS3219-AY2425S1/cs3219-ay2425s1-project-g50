@@ -1,6 +1,6 @@
 "use client";
 
-import { userServiceUri } from "@/lib/api-uri";
+import { userServiceUri } from "@/lib/api/api-uri";
 import { User, UserSchema } from "@/lib/schemas/user-schema";
 import { useRouter } from "next/navigation";
 import {

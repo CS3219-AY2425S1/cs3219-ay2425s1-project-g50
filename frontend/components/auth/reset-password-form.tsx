@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { resetPassword } from "@/lib/reset-password";
+import { resetPassword } from "@/lib/api/user-service/reset-password";
 import { isPasswordComplex } from "@/lib/password";
 import { useToast } from "@/components/hooks/use-toast";
 

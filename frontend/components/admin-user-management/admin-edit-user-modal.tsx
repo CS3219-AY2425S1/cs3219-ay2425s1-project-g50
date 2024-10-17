@@ -11,11 +11,11 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { updateUser } from "@/lib/update-user";
+import { updateUser } from "@/lib/api/user-service/update-user";
 import { useAuth } from "@/app/auth/auth-context";
 import { useToast } from "@/components/hooks/use-toast";
 import { Switch } from "../ui/switch";
-import { updateUserPrivilege } from "@/lib/update-user-privilege";
+import { updateUserPrivilege } from "@/lib/api/user-service/update-user-privilege";
 import { User } from "@/lib/schemas/user-schema";
 
 interface AdminEditUserModalProps extends React.HTMLProps<HTMLDivElement> {

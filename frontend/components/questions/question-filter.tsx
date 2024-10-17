@@ -12,6 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  CategoryEnumArray,
+  ComplexityEnumArray,
+} from "@/lib/schemas/question-schema";
 
 interface QuestionFilterProps {
   category: string;
@@ -52,13 +56,22 @@ const QuestionFilter: React.FC<QuestionFilterProps> = ({
           </div>
           <div>
             <Label htmlFor="category">Category</Label>
-            <Input
-              id="category"
+            <Select
               value={category}
-              onChange={(e) => onCategoryChange(e.target.value)}
-              placeholder="Enter category"
-              className="mt-1"
-            />
+              onValueChange={(value) => onCategoryChange(value)}
+            >
+              <SelectTrigger id="category" className="mt-1">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                {CategoryEnumArray.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label htmlFor="complexity">Complexity</Label>
@@ -71,9 +84,11 @@ const QuestionFilter: React.FC<QuestionFilterProps> = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
-                <SelectItem value="easy">Easy</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="hard">Hard</SelectItem>
+                {ComplexityEnumArray.map((complexity) => (
+                  <SelectItem key={complexity} value={complexity}>
+                    {complexity}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

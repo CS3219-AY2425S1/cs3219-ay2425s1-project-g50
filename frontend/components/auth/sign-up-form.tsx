@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/hooks/use-toast";
-import { signUp } from "@/lib/signup";
+import { signUp } from "@/lib/api/user-service/signup";
 import { isPasswordComplex } from "@/lib/password";
 
 import { Button } from "@/components/ui/button";

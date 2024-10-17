@@ -25,7 +25,7 @@ interface QuestionTableProps {
   handleDelete?: (question: Question) => void;
 }
 
-type SortKey = "title" | "category" | "complexity";
+type SortKey = "title" | "categories" | "complexity";
 type SortOrder = "asc" | "desc";
 
 const QuestionTable: React.FC<QuestionTableProps> = ({ ...props }) => {
@@ -84,12 +84,12 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ ...props }) => {
             </div>
           </TableHead>
           <TableHead
-            onClick={() => handleSort("category")}
+            onClick={() => handleSort("categories")}
             className="cursor-pointer"
           >
             <div className="flex items-center">
               <span>Category</span>
-              <SortIcon columnKey="category" />
+              <SortIcon columnKey="categories" />
             </div>
           </TableHead>
           <TableHead
@@ -108,7 +108,7 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ ...props }) => {
         {sortedData.map((question) => (
           <TableRow key={question.id}>
             <TableCell>{question.title}</TableCell>
-            <TableCell>{question.category}</TableCell>
+            <TableCell>{question.categories.join(", ")}</TableCell>
             <TableCell>{question.complexity}</TableCell>
             <TableCell>
               <Button

@@ -17,7 +17,7 @@ import AdminEditUserModal from "@/components/admin-user-management/admin-edit-us
 import DeleteAccountModal from "@/components/common/delete-account-modal";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 import { User, UserArraySchema } from "@/lib/schemas/user-schema";
-import { userServiceUri } from "@/lib/api-uri";
+import { userServiceUri } from "@/lib/api/api-uri";
 
 const fetcher = async (url: string): Promise<User[]> => {
   const token = localStorage.getItem("jwtToken");
