@@ -18,7 +18,7 @@ import {
 } from "@/lib/schemas/question-schema";
 import QuestionFormModal from "./question-form-modal";
 import { updateQuestion } from "@/lib/update-question";
-import { questionServiceUri } from "@/lib/api-uri";
+import { AuthType, questionServiceUri } from "@/lib/api-uri";
 
 const fetcher = async (url: string): Promise<Question[]> => {
   const token = localStorage.getItem("jwtToken");
@@ -56,7 +56,7 @@ export default function QuestionListing() {
   const [search, setSearch] = useState(searchParams.get("search") || "");
 
   const { data, isLoading, mutate } = useSWR(
-    `${questionServiceUri(window.location.hostname)}/questions?category=${encodeURIComponent(category)}&complexity=${encodeURIComponent(complexity)}&search=${encodeURIComponent(search)}`,
+    `${questionServiceUri(window.location.hostname, AuthType.Public)}/questions?category=${encodeURIComponent(category)}&complexity=${encodeURIComponent(complexity)}&search=${encodeURIComponent(search)}`,
     fetcher,
     {
       keepPreviousData: true,
@@ -144,13 +144,16 @@ export default function QuestionListing() {
   const handleBatchUpload = async (questions: CreateQuestion[]) => {
     try {
       const token = localStorage.getItem("jwtToken");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
       const response = await fetch(
-        `${questionServiceUri(window.location.hostname)}/questions/batch-upload`,
+        `${questionServiceUri(window.location.hostname, AuthType.Admin)}/questions/batch-upload`,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(questions),
         }
@@ -188,11 +191,20 @@ export default function QuestionListing() {
   const handleDeleteQuestion = async () => {
     if (!selectedQuestion) return;
 
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
     try {
       const response = await fetch(
-        `${questionServiceUri(window.location.hostname)}/questions/${selectedQuestion.id}`,
+        `${questionServiceUri(window.location.hostname, AuthType.Admin)}/questions/${selectedQuestion.id}`,
         {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -225,7 +237,12 @@ export default function QuestionListing() {
   };
 
   const handleEdit = async (question: Question) => {
-    const response = await updateQuestion(question);
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const response = await updateQuestion(token, question);
     if (!response.ok) {
       toast({
         title: "Unknown Error",
@@ -263,11 +280,17 @@ export default function QuestionListing() {
 
   const handleCreate = async (newQuestion: Question) => {
     try {
+      const token = localStorage.getItem("jwtToken");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
       const response = await fetch(
-        `${questionServiceUri(window.location.hostname)}/questions`,
+        `${questionServiceUri(window.location.hostname, AuthType.Admin)}/questions`,
         {
           method: "POST",
           headers: {
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({

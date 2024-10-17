@@ -1,0 +1,9 @@
+location /public/user-service/ {
+    location /public/user-service/auth {
+        proxy_pass http://user-service/auth;
+    }
+
+    location /public/user-service/users {
+        proxy_pass http://user-service/users;
+    }
+}
