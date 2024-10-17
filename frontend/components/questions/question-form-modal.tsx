@@ -52,7 +52,11 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
     e.preventDefault();
 
     props.handleSubmit(question);
-    setQuestion(initialQuestionState);
+    if (props.initialData) {
+      setQuestion(props.initialData);
+    } else {
+      setQuestion(initialQuestionState);
+    }
   };
 
   const handleExit = () => {
