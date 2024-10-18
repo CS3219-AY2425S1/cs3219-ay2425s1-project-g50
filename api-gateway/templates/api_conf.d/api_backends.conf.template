@@ -1,0 +1,15 @@
+upstream user-service {
+    server user-service:$USER_SVC_PORT;
+}
+
+upstream question-service {
+    server question-service:$QUESTION_SVC_PORT;
+}
+
+upstream matching-service {
+    server matching-service:$MATCHING_SVC_PORT;
+}
+
+upstream frontend {
+    server frontend:$FRONTEND_PORT;
+}
