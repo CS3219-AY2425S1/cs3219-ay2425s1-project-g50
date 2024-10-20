@@ -1,0 +1,2 @@
+location /owner/matching-service/ {
+}

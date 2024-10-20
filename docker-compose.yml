@@ -4,22 +4,13 @@ services:
       context: ./frontend
       args:
         - BASE_URI=$BASE_URI
-        - USER_SVC_PORT=$USER_SVC_PORT
-        - QUESTION_SVC_PORT=$QUESTION_SVC_PORT
-        - MATCHING_SVC_PORT=$MATCHING_SVC_PORT
-    ports:
-      - $FRONTEND_PORT:$FRONTEND_PORT
-    depends_on:
-      - question-service
-      - user-service
+        - API_GATEWAY_PORT=$API_GATEWAY_PORT
     environment:
       - PORT=$FRONTEND_PORT
 
   question-service:
     build:
       context: ./question-service
-    ports:
-      - $QUESTION_SVC_PORT:$QUESTION_SVC_PORT
     environment:
       - PORT=$QUESTION_SVC_PORT
       - DB_URI=$QUESTION_SVC_DB_URI
@@ -28,8 +19,6 @@ services:
   user-service:
     build:
       context: ./user-service
-    ports:
-      - $USER_SVC_PORT:$USER_SVC_PORT
     environment:
       - PORT=$USER_SVC_PORT
       - DB_URI=$USER_SVC_DB_URI
@@ -40,14 +29,31 @@ services:
   matching-service:
     build:
       context: ./matching-service
-    ports:
-      - $MATCHING_SVC_PORT:$MATCHING_SVC_PORT
     environment:
       - PORT=$MATCHING_SVC_PORT
       - REDIS_HOST=redis
       - REDIS_PORT=$REDIS_PORT
     depends_on:
       - redis
+
+  api-gateway:
+    image: nginx:1.26
+    volumes:
+      - ./api-gateway/templates:/etc/nginx/templates
+      - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - $API_GATEWAY_PORT:$API_GATEWAY_PORT
+    environment:
+      - PORT=$API_GATEWAY_PORT
+      - FRONTEND_PORT=$FRONTEND_PORT
+      - USER_SVC_PORT=$USER_SVC_PORT
+      - QUESTION_SVC_PORT=$QUESTION_SVC_PORT
+      - MATCHING_SVC_PORT=$MATCHING_SVC_PORT
+    depends_on:
+      - frontend
+      - user-service
+      - question-service
+      - matching-service
 
   redis:
     image: redis:7.4-alpine

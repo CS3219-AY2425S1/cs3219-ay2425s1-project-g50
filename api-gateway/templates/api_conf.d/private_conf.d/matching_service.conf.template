@@ -1,0 +1,5 @@
+location /private/matching-service/ {
+    location /private/matching-service/match {
+        proxy_pass http://matching-service/match;
+    }
+}

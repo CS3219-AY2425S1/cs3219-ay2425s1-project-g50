@@ -1,4 +1,4 @@
-import { userServiceUri } from "@/lib/api/api-uri";
+import { AuthType, userServiceUri } from "@/lib/api/api-uri";
 
 export const signUp = async (
   username: string,
@@ -6,7 +6,7 @@ export const signUp = async (
   password: string
 ) => {
   const response = await fetch(
-    `${userServiceUri(window.location.hostname)}/users`,
+    `${userServiceUri(window.location.hostname, AuthType.Public)}/users`,
     {
       method: "POST",
       headers: {
