@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import clsx from "clsx";
 import {
   Card,
@@ -18,7 +18,6 @@ const difficultyColors = {
 };
 
 export default function QuestionDisplay({
-  roomId,
   className,
   date,
   question,
