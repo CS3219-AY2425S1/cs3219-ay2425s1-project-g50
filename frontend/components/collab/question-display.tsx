@@ -16,8 +16,11 @@ const difficultyColors = {
   Hard: "bg-red-500",
 };
 
-export default function QuestionDisplay({ question }: { question: Question | null }) {
-
+export default function QuestionDisplay({
+  question,
+}: {
+  question: Question | null;
+}) {
   if (!question) {
     return <div>Question not found</div>;
   }

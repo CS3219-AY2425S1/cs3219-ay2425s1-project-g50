@@ -61,11 +61,11 @@ export default function CollabRoom({ roomId }: { roomId: string }) {
           {loading ? (
             <LoadingScreen />
           ) : (
-            <QuestionDisplay question={question}/>
+            <QuestionDisplay question={question} />
           )}
-          <Chat roomId={roomId} question={question} code={code}/>
+          <Chat roomId={roomId} question={question} code={code} />
         </div>
-        <CodeEditor roomId={roomId} setCode={setCode}/>
+        <CodeEditor roomId={roomId} setCode={setCode} />
       </div>
     </div>
   );
