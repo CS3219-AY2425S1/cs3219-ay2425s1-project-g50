@@ -18,6 +18,7 @@ export default function CollabRoom({ roomId }: { roomId: string }) {
 
   const [question, setQuestion] = useState<Question | null>(null);
   const [loading, setLoading] = useState(true);
+  const [code, setCode] = useState<string>("");
 
   useEffect(() => {
     async function fetchQuestion() {
@@ -60,11 +61,11 @@ export default function CollabRoom({ roomId }: { roomId: string }) {
           {loading ? (
             <LoadingScreen />
           ) : (
-            <QuestionDisplay question={question} />
+            <QuestionDisplay question={question}/>
           )}
-          <Chat roomId={roomId} />
+          <Chat roomId={roomId} question={question} code={code}/>
         </div>
-        <CodeEditor roomId={roomId} />
+        <CodeEditor roomId={roomId} setCode={setCode}/>
       </div>
     </div>
   );

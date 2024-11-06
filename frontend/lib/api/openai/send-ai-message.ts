@@ -3,7 +3,7 @@ import { Message } from "@/components/collab/chat";
 
 export const sendAiMessage = async (messages: Message[]) => {
   const apiMessages = messages.map((msg) => ({
-    role: `${msg.userId === "ai" ? "assistant" : "user"}`,
+    role: `${(msg.userId === "assistant" || msg.userId === "system") ? msg.userId : "user"}`,
     content: msg.text,
   }));
   const response = await fetch(

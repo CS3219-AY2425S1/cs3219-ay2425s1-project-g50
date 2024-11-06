@@ -11,6 +11,7 @@ import { io, Socket } from "socket.io-client";
 import { useAuth } from "@/app/auth/auth-context";
 import LoadingScreen from "@/components/common/loading-screen";
 import { sendAiMessage } from "@/lib/api/openai/send-ai-message";
+import { Question } from "@/lib/schemas/question-schema";
 
 export interface Message {
   id: string;
@@ -19,7 +20,15 @@ export interface Message {
   timestamp: Date;
 }
 
-export default function Chat({ roomId }: { roomId: string }) {
+export default function Chat({
+  roomId,
+  question,
+  code,
+}: {
+  roomId: string;
+  question: Question | null;
+  code: string;
+}) {
   const auth = useAuth();
   const own_user_id = auth?.user?.id;
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -29,6 +38,31 @@ export default function Chat({ roomId }: { roomId: string }) {
   const [aiMessages, setAiMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const greeting =
+      "Hello! I am your AI assistant! You can ask me for help with the question or any other programming related queries.";
+    const greetingMessage = {
+      id: crypto.randomUUID(),
+      userId: "assistant",
+      text: greeting,
+      timestamp: new Date(),
+    };
+    setAiMessages((prev) => [...prev, greetingMessage]);
+  }, []);
+
+  useEffect(() => {
+    if (question) {
+      const context = `${question.title}: ${question.description}. Your job is to assist a student who is solving this problem. Provide hints and guide them through the problem solving process if they ask for it. Do not answer irrelevant questions, try to keep the student focussed on the task.`;
+      const systemMessage = {
+        id: crypto.randomUUID(),
+        userId: "system",
+        text: context,
+        timestamp: new Date(),
+      };
+      setAiMessages((prev) => [...prev, systemMessage]);
+    }
+  }, [question]);
 
   useEffect(() => {
     if (!auth?.user?.id) return; // Avoid connecting if user is not authenticated
@@ -93,14 +127,23 @@ export default function Chat({ roomId }: { roomId: string }) {
     } else {
       setAiMessages((prev) => [...prev, message]);
       setNewMessage("");
-      const response = await sendAiMessage(aiMessages.concat(message));
+      const attachedCode = {
+        id: crypto.randomUUID(),
+        userId: "system",
+        text: `This is the student's current code now: ${code}. Take note of any changes and be prepared to explain, correct or fix any issues in the code if the student asks.`,
+        timestamp: new Date(),
+      };
+      const response = await sendAiMessage(
+        aiMessages.concat(attachedCode).concat(message)
+      );
       const data = await response.json();
       const aiMessage = {
         id: crypto.randomUUID(),
-        userId: "ai",
+        userId: "assistant",
         text: data.data ? data.data : "An error occurred. Please try again.",
         timestamp: new Date(),
       };
+      setAiMessages((prev) => [...prev, attachedCode]);
       setAiMessages((prev) => [...prev, aiMessage]);
     }
 
@@ -114,23 +157,33 @@ export default function Chat({ roomId }: { roomId: string }) {
     });
   };
 
-  const renderMessage = (message: Message, isOwnMessage: boolean) => (
-    <div
-      key={message.id}
-      className={`p-2 rounded-lg mb-2 max-w-[80%] ${
-        isOwnMessage
-          ? "ml-auto bg-blue-500 text-white"
-          : "bg-gray-100 dark:bg-gray-800"
-      }`}
-    >
-      <div className="text-sm">{message.text}</div>
-      <div
-        className={`text-xs ${isOwnMessage ? "text-blue-100" : "text-gray-500"}`}
-      >
-        {formatTimestamp(message.timestamp)}
-      </div>
-    </div>
-  );
+  const renderMessage = (
+    message: Message,
+    isOwnMessage: boolean,
+    isSystem: boolean
+  ) => {
+    if (isSystem) {
+      return null;
+    } else {
+      return (
+        <div
+          key={message.id}
+          className={`p-2 rounded-lg mb-2 max-w-[80%] ${
+            isOwnMessage
+              ? "ml-auto bg-blue-500 text-white"
+              : "bg-gray-100 dark:bg-gray-800"
+          }`}
+        >
+          <div className="text-sm">{message.text}</div>
+          <div
+            className={`text-xs ${isOwnMessage ? "text-blue-100" : "text-gray-500"}`}
+          >
+            {formatTimestamp(message.timestamp)}
+          </div>
+        </div>
+      );
+    }
+  };
 
   if (!own_user_id) {
     return <LoadingScreen />;
@@ -160,7 +213,7 @@ export default function Chat({ roomId }: { roomId: string }) {
             <ScrollArea className="h-[calc(70vh-280px)]">
               <div className="pr-4 space-y-2">
                 {partnerMessages.map((msg) =>
-                  renderMessage(msg, msg.userId === own_user_id)
+                  renderMessage(msg, msg.userId === own_user_id, false)
                 )}
                 <div ref={lastMessageRef} />
               </div>
@@ -170,7 +223,11 @@ export default function Chat({ roomId }: { roomId: string }) {
             <ScrollArea className="h-[calc(70vh-280px)]">
               <div className="pr-4 space-y-2">
                 {aiMessages.map((msg) =>
-                  renderMessage(msg, msg.userId === own_user_id)
+                  renderMessage(
+                    msg,
+                    msg.userId === own_user_id,
+                    msg.userId === "system"
+                  )
                 )}
                 <div ref={lastMessageRef} />
               </div>

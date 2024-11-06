@@ -40,7 +40,13 @@ const languages: Record<string, LanguageEntry> = {
   },
 };
 
-export default function CodeEditor({ roomId }: { roomId: string }) {
+export default function CodeEditor({
+  roomId,
+  setCode,
+}: {
+  roomId: string;
+  setCode: (value: string) => void;
+}) {
   const monaco = useMonaco();
   const [language, setLanguage] = useState<string>("Javascript");
   const [theme, setTheme] = useState<string>("light");
@@ -138,6 +144,9 @@ export default function CodeEditor({ roomId }: { roomId: string }) {
               language={languages[language]?.language}
               onMount={(editor) => {
                 setEditor(editor);
+              }}
+              onChange={(value) => {
+                setCode(value);
               }}
               theme={theme === "dark" ? "vs-dark" : "light"}
             />
