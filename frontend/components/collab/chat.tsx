@@ -59,7 +59,7 @@ export default function Chat({
 
   useEffect(() => {
     const greeting =
-      "Hello! I am your AI assistant! You can ask me for help with the question or any other programming related queries.";
+      "Hello! I am your AI assistant! You can ask me for help with the question or any other programming related queries while you are coding.";
     const greetingMessage = {
       id: uuidv4(),
       userId: "assistant",
