@@ -12,7 +12,7 @@ import { useAuth } from "@/app/auth/auth-context";
 import LoadingScreen from "@/components/common/loading-screen";
 import { sendAiMessage } from "@/lib/api/openai/send-ai-message";
 
-interface Message {
+export interface Message {
   id: string;
   userId: string;
   text: string;
@@ -92,15 +92,15 @@ export default function Chat({ roomId }: { roomId: string }) {
       });
     } else {
       setAiMessages((prev) => [...prev, message]);
-      const response = await sendAiMessage(newMessage);
+      setNewMessage("");
+      const response = await sendAiMessage(aiMessages.concat(message));
       const data = await response.json();
       const aiMessage = {
         id: crypto.randomUUID(),
         userId: "ai",
-        text:
-          data.data.choices && data.data.choices[0]?.message?.content
-            ? data.data.choices[0].message.content
-            : "An error occurred. Please try again.",
+        text: data.returnMessage
+          ? data.returnMessage
+          : "An error occurred. Please try again.",
         timestamp: new Date(),
       };
       setAiMessages((prev) => [...prev, aiMessage]);
