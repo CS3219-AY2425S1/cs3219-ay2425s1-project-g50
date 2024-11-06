@@ -147,7 +147,7 @@ export default function CodeEditor({
                 setEditor(editor);
               }}
               onChange={(value) => {
-                setCode(value);
+                setCode(value || "");
               }}
               theme={theme === "dark" ? "vs-dark" : "light"}
             />
