@@ -22,7 +22,6 @@ export default function QuestionDisplay({
   date,
   question,
 }: {
-  roomId: string;
   className?: string;
   date?: Date;
   question: Question | null;
