@@ -8,9 +8,8 @@ export async function sendAiMessageController(req, res) {
   }
 
   const returnMessage = await sendAiMessage(messages);
-
   if (returnMessage) {
-    res.status(200).json({ returnMessage: returnMessage });
+    res.status(200).json({ data: returnMessage });
   } else {
     res.status(500).json({ error: "Failed to retrieve AI response" });
   }

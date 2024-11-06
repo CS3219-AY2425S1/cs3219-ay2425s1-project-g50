@@ -98,9 +98,7 @@ export default function Chat({ roomId }: { roomId: string }) {
       const aiMessage = {
         id: crypto.randomUUID(),
         userId: "ai",
-        text: data.returnMessage
-          ? data.returnMessage
-          : "An error occurred. Please try again.",
+        text: data.data ? data.data : "An error occurred. Please try again.",
         timestamp: new Date(),
       };
       setAiMessages((prev) => [...prev, aiMessage]);
