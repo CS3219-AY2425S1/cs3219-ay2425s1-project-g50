@@ -17,19 +17,17 @@ const difficultyColors = {
   Hard: "bg-red-500",
 };
 
-
 export default function QuestionDisplay({
   roomId,
   className,
   date,
-  question
+  question,
 }: {
   roomId: string;
   className?: string;
   date?: Date;
   question: Question | null;
 }) {
-
   if (!question) {
     return <div>Question not found</div>;
   }
