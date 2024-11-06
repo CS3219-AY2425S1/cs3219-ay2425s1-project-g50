@@ -8,16 +8,32 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send } from "lucide-react";
 import { io, Socket } from "socket.io-client";
+import { useToast } from "@/components/hooks/use-toast";
 import { useAuth } from "@/app/auth/auth-context";
 import LoadingScreen from "@/components/common/loading-screen";
 import { sendAiMessage } from "@/lib/api/openai/send-ai-message";
 import { Question } from "@/lib/schemas/question-schema";
+import { getChatHistory } from "@/lib/api/collab-service/get-chat-history";
+import { v4 as uuidv4 } from "uuid";
+import {
+  AuthType,
+  baseApiGatewayUri,
+  constructUriSuffix,
+} from "@/lib/api/api-uri";
 
 export interface Message {
   id: string;
   userId: string;
   text: string;
   timestamp: Date;
+  messageIndex?: number;
+}
+
+interface ChatHistoryMessage {
+  messageIndex: number;
+  userId: string;
+  text: string;
+  timestamp: string;
 }
 
 export default function Chat({
@@ -30,6 +46,7 @@ export default function Chat({
   code: string;
 }) {
   const auth = useAuth();
+  const { toast } = useToast();
   const own_user_id = auth?.user?.id;
   const [socket, setSocket] = useState<Socket | null>(null);
   const [chatTarget, setChatTarget] = useState<string>("partner");
@@ -37,13 +54,14 @@ export default function Chat({
   const [partnerMessages, setPartnerMessages] = useState<Message[]>([]);
   const [aiMessages, setAiMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const greeting =
       "Hello! I am your AI assistant! You can ask me for help with the question or any other programming related queries.";
     const greetingMessage = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       userId: "assistant",
       text: greeting,
       timestamp: new Date(),
@@ -55,7 +73,7 @@ export default function Chat({
     if (question) {
       const context = `${question.title}: ${question.description}. Your job is to assist a student who is solving this problem. Provide hints and guide them through the problem solving process if they ask for it. Do not answer irrelevant questions, try to keep the student focussed on the task.`;
       const systemMessage = {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         userId: "system",
         text: context,
         timestamp: new Date(),
@@ -66,13 +84,55 @@ export default function Chat({
 
   useEffect(() => {
     if (!auth?.user?.id) return; // Avoid connecting if user is not authenticated
+    const fetchChatHistory = async () => {
+      try {
+        if (!auth || !auth.token) {
+          toast({
+            title: "Access denied",
+            description: "No authentication token found",
+            variant: "destructive",
+          });
+          return;
+        }
 
-    const socketInstance = io(
-      process.env.NEXT_PUBLIC_COLLAB_SERVICE_URL || "http://localhost:3002",
-      {
-        auth: { userId: own_user_id },
+        const response = await getChatHistory(auth?.token, roomId);
+
+        if (response.ok) {
+          const history: ChatHistoryMessage[] = await response.json();
+          const formattedHistory = history.map((msg) => ({
+            id: msg.messageIndex.toString(),
+            userId: msg.userId,
+            text: msg.text,
+            timestamp: new Date(msg.timestamp),
+            messageIndex: msg.messageIndex,
+          }));
+
+          formattedHistory.sort(
+            (a: Message, b: Message) =>
+              (a.messageIndex ?? 0) - (b.messageIndex ?? 0)
+          );
+
+          setPartnerMessages(formattedHistory);
+        }
+      } catch (error) {
+        console.error("Error fetching chat history:", error);
+      } finally {
+        setIsLoading(false);
       }
-    );
+    };
+
+    if (roomId) {
+      fetchChatHistory();
+    }
+  }, [roomId]);
+
+  useEffect(() => {
+    if (!auth?.user?.id) return;
+
+    const socketInstance = io(baseApiGatewayUri(window.location.hostname), {
+      path: `${constructUriSuffix(AuthType.Public, "collab-service")}/chat`,
+      auth: { userId: own_user_id },
+    });
 
     socketInstance.on("connect", () => {
       console.log("Connected to Socket.IO");
@@ -86,7 +146,24 @@ export default function Chat({
     });
 
     socketInstance.on("chatMessage", (message: Message) => {
-      setPartnerMessages((prev) => [...prev, message]);
+      setPartnerMessages((prev) => {
+        const exists = prev.some(
+          (msg) => msg.messageIndex === message.messageIndex
+        );
+        if (exists) return prev;
+
+        const newMessage = {
+          ...message,
+          id: message.messageIndex?.toString() || uuidv4(),
+          timestamp: new Date(message.timestamp),
+        };
+
+        const newMessages = [...prev, newMessage].sort(
+          (a, b) => (a.messageIndex ?? 0) - (b.messageIndex ?? 0)
+        );
+
+        return newMessages;
+      });
     });
 
     setSocket(socketInstance);
@@ -111,12 +188,14 @@ export default function Chat({
   const sendMessage = async () => {
     if (!newMessage.trim() || !socket || !isConnected || !own_user_id) return;
 
-    const message = {
-      id: crypto.randomUUID(),
-      userId: own_user_id,
-      text: newMessage,
-      timestamp: new Date(),
-    };
+    if (!auth || !auth.token) {
+      toast({
+        title: "Access denied",
+        description: "No authentication token found",
+        variant: "destructive",
+      });
+      return;
+    }
 
     if (chatTarget === "partner") {
       socket.emit("sendMessage", {
@@ -125,20 +204,27 @@ export default function Chat({
         text: newMessage,
       });
     } else {
+      const message: Message = {
+        id: uuidv4(),
+        userId: own_user_id,
+        text: newMessage,
+        timestamp: new Date(),
+      };
       setAiMessages((prev) => [...prev, message]);
       setNewMessage("");
       const attachedCode = {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         userId: "system",
         text: `This is the student's current code now: ${code}. Take note of any changes and be prepared to explain, correct or fix any issues in the code if the student asks.`,
         timestamp: new Date(),
       };
       const response = await sendAiMessage(
+        auth?.token,
         aiMessages.concat(attachedCode).concat(message)
       );
       const data = await response.json();
       const aiMessage = {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         userId: "assistant",
         text: data.data ? data.data : "An error occurred. Please try again.",
         timestamp: new Date(),
@@ -151,7 +237,10 @@ export default function Chat({
   };
 
   const formatTimestamp = (date: Date) => {
-    return new Date(date).toLocaleTimeString([], {
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+      return "Invalid Date";
+    }
+    return date.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -185,12 +274,12 @@ export default function Chat({
     }
   };
 
-  if (!own_user_id) {
+  if (!own_user_id || isLoading) {
     return <LoadingScreen />;
   }
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col h-full">
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           Chat

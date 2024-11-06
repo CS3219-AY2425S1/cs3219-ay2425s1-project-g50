@@ -1,6 +1,6 @@
-import { matchingServiceUri } from "@/lib/api/api-uri";
+import { AuthType, matchingServiceUri } from "@/lib/api/api-uri";
 
-export const leaveMatchQueue = async (
+export const joinMatchQueue = async (
   jwtToken: string,
   userId: string,
   category: string,
@@ -11,9 +11,9 @@ export const leaveMatchQueue = async (
     difficulty: complexity,
   }).toString();
   const response = await fetch(
-    `${matchingServiceUri(window.location.hostname)}/match/queue/${userId}?${params}`,
+    `${matchingServiceUri(window.location.hostname, AuthType.Private)}/match/queue/${userId}?${params}`,
     {
-      method: "DELETE",
+      method: "POST",
       headers: {
         Authorization: `Bearer ${jwtToken}`,
         "Content-Type": "application/json",

@@ -1,0 +1,23 @@
+location /verify-token {
+    internal;
+
+    proxy_pass_request_body off; 
+    proxy_set_header Content-Length "";
+    proxy_pass http://user-service/auth/verify-token;
+}
+
+location /verify-owner {
+    internal;
+
+    proxy_pass_request_body off; 
+    proxy_set_header Content-Length "";
+    proxy_pass http://user-service/auth/verify-owner;
+}
+
+location /verify-admin {
+    internal;
+
+    proxy_pass_request_body off; 
+    proxy_set_header Content-Length "";
+    proxy_pass http://user-service/auth/verify-admin;
+}

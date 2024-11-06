@@ -5,9 +5,9 @@ import { SearchProgress } from "@/components/matching/search-progress";
 import { SelectionSummary } from "@/components/matching/selection-summary";
 import { useToast } from "@/components/hooks/use-toast";
 import { useAuth } from "@/app/auth/auth-context";
-import { joinMatchQueue } from "@/lib/join-match-queue";
-import { leaveMatchQueue } from "@/lib/leave-match-queue";
-import { subscribeMatch } from "@/lib/subscribe-match";
+import { joinMatchQueue } from "@/lib/api/matching-service/join-match-queue";
+import { leaveMatchQueue } from "@/lib/api/matching-service/leave-match-queue";
+import { subscribeMatch } from "@/lib/api/matching-service/subscribe-match";
 import { useRouter } from "next/navigation";
 
 export default function FindMatch() {
@@ -135,6 +135,11 @@ export default function FindMatch() {
               isMatched = true;
               setIsSearching(false);
               clearTimeout(queueTimeout);
+              toast({
+                title: "Matched",
+                description: "Successfully matched",
+                variant: "success",
+              });
               router.push(`/app/collab/${room_id}`);
             }
           } catch (error) {

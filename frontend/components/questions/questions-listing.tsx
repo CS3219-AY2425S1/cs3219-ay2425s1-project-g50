@@ -21,8 +21,8 @@ import {
   CreateQuestionArraySchema,
 } from "@/lib/schemas/question-schema";
 import QuestionFormModal from "./question-form-modal";
+import { AuthType, questionServiceUri } from "@/lib/api/api-uri";
 import { updateQuestion } from "@/lib/api/question-service/update-question";
-import { questionServiceUri } from "@/lib/api/api-uri";
 import { createQuestion } from "@/lib/api/question-service/create-question";
 import { deleteQuestion } from "@/lib/api/question-service/delete-question";
 import { bulkCreateQuestion } from "@/lib/api/question-service/bulk-create-question";
@@ -77,7 +77,7 @@ export default function QuestionListing() {
   };
 
   const { data, isLoading, mutate } = useSWR(
-    `${questionServiceUri(window.location.hostname)}/questions${getUriParams()}`,
+    `${questionServiceUri(window.location.hostname, AuthType.Public)}/questions${getUriParams()}`,
     fetcher,
     {
       keepPreviousData: true,

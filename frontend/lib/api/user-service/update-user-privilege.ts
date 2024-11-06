@@ -1,4 +1,4 @@
-import { userServiceUri } from "@/lib/api/api-uri";
+import { AuthType, userServiceUri } from "@/lib/api/api-uri";
 
 export const updateUserPrivilege = async (
   jwtToken: string,
@@ -8,7 +8,7 @@ export const updateUserPrivilege = async (
   const body = { isAdmin };
 
   const response = await fetch(
-    `${userServiceUri(window.location.hostname)}/users/${id}/privilege`,
+    `${userServiceUri(window.location.hostname, AuthType.Public)}/users/${id}/privilege`,
     {
       method: "PATCH",
       headers: {

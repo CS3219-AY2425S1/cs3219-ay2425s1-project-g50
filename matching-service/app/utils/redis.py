@@ -22,8 +22,8 @@ async def release_lock(redis_client, key) -> None:
     await redis_client.delete(lock_key)
 
 redis_client = redis.Redis(
-    host=os.environ.get("REDIS_HOST", "localhost"),
-    port=int(os.environ.get("REDIS_PORT", "6379")),
+    host=os.environ.get("REDIS_SERVICE_HOST", "localhost"),
+    port=int(os.environ.get("REDIS_SERVICE_PORT", "6379")),
     db=0,
     decode_responses=True
 )

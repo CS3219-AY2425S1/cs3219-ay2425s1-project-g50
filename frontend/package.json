@@ -40,6 +40,7 @@
     "swr": "^2.2.5",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.0.2",
     "y-monaco": "^0.1.6",
     "y-websocket": "^2.0.4",
     "yarn": "^1.22.22",

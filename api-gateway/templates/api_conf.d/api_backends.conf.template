@@ -1,0 +1,19 @@
+upstream user-service {
+    server $USER_SERVICE_SERVICE_HOST:$USER_SERVICE_SERVICE_PORT;
+}
+
+upstream question-service {
+    server $QUESTION_SERVICE_SERVICE_HOST:$QUESTION_SERVICE_SERVICE_PORT;
+}
+
+upstream matching-service {
+    server $MATCHING_SERVICE_SERVICE_HOST:$MATCHING_SERVICE_SERVICE_PORT;
+}
+
+upstream collab-service {
+    server $COLLAB_SERVICE_SERVICE_HOST:$COLLAB_SERVICE_SERVICE_PORT;
+}
+
+upstream frontend {
+    server $FRONTEND_SERVICE_HOST:$FRONTEND_SERVICE_PORT;
+}

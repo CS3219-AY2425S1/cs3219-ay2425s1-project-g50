@@ -19,12 +19,14 @@ import { Label } from "@/components/ui/label";
 
 const difficulties: string[] = ["Easy", "Medium", "Hard"];
 const topics: string[] = [
+  "Algorithms",
   "Arrays",
+  "Brainteaser",
+  "Bit Manipulation",
+  "Databases",
+  "Data Structures",
+  "Recursion",
   "Strings",
-  "Linked Lists",
-  "Trees",
-  "Graphs",
-  "Dynamic Programming",
 ];
 
 interface MatchFormProps {

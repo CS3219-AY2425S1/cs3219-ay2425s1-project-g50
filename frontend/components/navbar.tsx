@@ -3,7 +3,15 @@
 import { useAuth } from "@/app/auth/auth-context";
 import { usePathname } from "next/navigation";
 
-import { Book, BookUser, LogOut, Settings, User, Users } from "lucide-react";
+import {
+  Book,
+  BookUser,
+  History,
+  LogOut,
+  Settings,
+  User,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -71,6 +79,17 @@ export function Navbar() {
               >
                 <Users className="mr-2 h-4 w-4" />
                 Matching
+              </Link>
+              <Link
+                href="/app/history"
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                  isActive("/app/history")
+                    ? "border-primary"
+                    : "border-transparent"
+                }`}
+              >
+                <History className="mr-2 h-4 w-4" />
+                History
               </Link>
             </div>
           </div>

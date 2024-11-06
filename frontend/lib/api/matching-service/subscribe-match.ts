@@ -1,4 +1,4 @@
-import { matchingServiceWebSockUri } from "@/lib/api/api-uri";
+import { AuthType, matchingServiceWebSockUri } from "@/lib/api/api-uri";
 
 export const subscribeMatch = async (
   userId: string,
@@ -10,6 +10,6 @@ export const subscribeMatch = async (
     difficulty: complexity,
   });
   return new WebSocket(
-    `${matchingServiceWebSockUri(window.location.hostname)}/match/subscribe/${userId}?${params}`
+    `${matchingServiceWebSockUri(window.location.hostname, AuthType.Public)}/match/subscribe/${userId}?${params}`
   );
 };

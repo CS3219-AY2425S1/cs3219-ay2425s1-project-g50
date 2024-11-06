@@ -1,8 +1,8 @@
-import { questionServiceUri } from "@/lib/api/api-uri";
+import { AuthType, questionServiceUri } from "@/lib/api/api-uri";
 
 export const getQuestion = async (jwtToken: string, questionId: string) => {
   const response = await fetch(
-    `${questionServiceUri(window.location.hostname)}/questions/${questionId}`,
+    `${questionServiceUri(window.location.hostname, AuthType.Public)}/questions/${questionId}`,
     {
       method: "GET",
       headers: {

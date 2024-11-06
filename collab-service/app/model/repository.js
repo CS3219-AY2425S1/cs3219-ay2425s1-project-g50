@@ -7,9 +7,6 @@ export async function connectToMongo() {
 
 export async function newRoom(user1, user2, roomId, questionId) {
   try {
-    // Remove any existing rooms where either user1 or user2 is a participant
-    await UsersSession.deleteMany({ users: { $in: [user1, user2] } });
-
     const newRoom = new UsersSession({
       users: [user1, user2],
       roomId: roomId,
@@ -41,6 +38,16 @@ export async function getAllRooms() {
     return rooms;
   } catch (error) {
     console.error("Error getting all rooms:", error);
+    return null;
+  }
+}
+
+export async function getAllRoomsByUserId(user) {
+  try {
+    const rooms = await UsersSession.find({ users: user });
+    return rooms;
+  } catch (error) {
+    console.error("Error getting all rooms of user:", error);
     return null;
   }
 }

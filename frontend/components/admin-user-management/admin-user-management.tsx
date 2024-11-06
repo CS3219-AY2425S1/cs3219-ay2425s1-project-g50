@@ -17,7 +17,7 @@ import AdminEditUserModal from "@/components/admin-user-management/admin-edit-us
 import DeleteAccountModal from "@/components/common/delete-account-modal";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 import { User, UserArraySchema } from "@/lib/schemas/user-schema";
-import { userServiceUri } from "@/lib/api/api-uri";
+import { AuthType, userServiceUri } from "@/lib/api/api-uri";
 
 const fetcher = async (url: string): Promise<User[]> => {
   const token = localStorage.getItem("jwtToken");
@@ -45,7 +45,7 @@ export default function AdminUserManagement() {
   const auth = useAuth();
 
   const { data, isLoading, mutate } = useSWR(
-    `${userServiceUri(window.location.hostname)}/users`,
+    `${userServiceUri(window.location.hostname, AuthType.Public)}/users`,
     fetcher
   );
 
@@ -78,7 +78,7 @@ export default function AdminUserManagement() {
     }
 
     const response = await fetch(
-      `${userServiceUri(window.location.hostname)}/users/${selectedUser?.id}`,
+      `${userServiceUri(window.location.hostname, AuthType.Public)}/users/${selectedUser?.id}`,
       {
         method: "DELETE",
         headers: {

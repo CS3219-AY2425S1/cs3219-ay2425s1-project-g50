@@ -1,8 +1,8 @@
-import { userServiceUri } from "@/lib/api/api-uri";
+import { AuthType, userServiceUri } from "@/lib/api/api-uri";
 
 export const resetPassword = async (token: string, password: string) => {
   const response = await fetch(
-    `${userServiceUri(window.location.hostname)}/users/reset-password`,
+    `${userServiceUri(window.location.hostname, AuthType.Public)}/users/reset-password`,
     {
       method: "POST",
       headers: {

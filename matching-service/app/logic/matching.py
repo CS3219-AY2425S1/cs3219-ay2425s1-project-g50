@@ -8,11 +8,11 @@ from utils.socketmanager import manager
 import os
 import httpx
 
-QUESTION_SVC_PORT = os.getenv("QUESTION_SVC_PORT")
-QUESTION_SVC_URL = f"http://question-service:{QUESTION_SVC_PORT}"
+QUESTION_SVC_PORT = os.getenv("QUESTION_SERVICE_SERVICE_PORT")
+QUESTION_SVC_URL = f"http://{os.getenv("QUESTION_SERVICE_SERVICE_HOST")}:{QUESTION_SVC_PORT}"
 
-COLLAB_SVC_PORT = os.getenv("COLLAB_SVC_PORT")
-COLLAB_SVC_URL = f"http://collab-service:{COLLAB_SVC_PORT}"
+COLLAB_SVC_PORT = os.getenv("COLLAB_SERVICE_SERVICE_PORT")
+COLLAB_SVC_URL = f"http://{os.getenv("COLLAB_SERVICE_SERVICE_HOST")}:{COLLAB_SVC_PORT}"
 
 async def find_match_else_enqueue(
     user_id: str,

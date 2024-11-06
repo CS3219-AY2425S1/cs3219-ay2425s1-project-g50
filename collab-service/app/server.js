@@ -7,11 +7,12 @@ import ywsUtils from "y-websocket/bin/utils";
 import { WebSocketServer } from "ws";
 const setupWSConnection = ywsUtils.setupWSConnection;
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.COLLAB_SERVICE_SERVICE_PORT || 3002;
 const server = http.createServer(index);
 const docs = ywsUtils.docs;
 
 const io = new Server(server, {
+  path: "/chat",
   cors: {
     origin: "*", // Allow all origins; replace with specific origin if needed
     methods: ["GET", "POST"],

@@ -1,4 +1,4 @@
-import { userServiceUri } from "@/lib/api/api-uri";
+import { AuthType, userServiceUri } from "@/lib/api/api-uri";
 
 export const updateUser = async (
   jwtToken: string,
@@ -15,7 +15,7 @@ export const updateUser = async (
   const body = { username, email, password, skillLevel };
 
   const response = await fetch(
-    `${userServiceUri(window.location.hostname)}/users/${id}`,
+    `${userServiceUri(window.location.hostname, AuthType.Public)}/users/${id}`,
     {
       method: "PATCH",
       headers: {

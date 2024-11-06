@@ -1,6 +1,6 @@
 "use client";
 
-import { userServiceUri } from "@/lib/api/api-uri";
+import { AuthType, userServiceUri } from "@/lib/api/api-uri";
 import { User, UserSchema } from "@/lib/schemas/user-schema";
 import { useRouter } from "next/navigation";
 import {
@@ -39,12 +39,15 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
     if (token) {
       setIsLoading(true);
-      fetch(`${userServiceUri(window.location.hostname)}/auth/verify-token`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      fetch(
+        `${userServiceUri(window.location.hostname, AuthType.Public)}/auth/verify-token`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
         .then((res) => {
           res.json().then((result) => {
             setUser(result.data);
@@ -61,7 +64,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Login using email and password
   const login = async (email: string, password: string): Promise<User> => {
     const response = await fetch(
-      `${userServiceUri(window.location.hostname)}/auth/login`,
+      `${userServiceUri(window.location.hostname, AuthType.Public)}/auth/login`,
       {
         method: "POST",
         headers: {

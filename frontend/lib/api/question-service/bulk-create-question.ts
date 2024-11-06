@@ -1,12 +1,12 @@
 import { CreateQuestion } from "@/lib/schemas/question-schema";
-import { questionServiceUri } from "../api-uri";
+import { AuthType, questionServiceUri } from "../api-uri";
 
 export const bulkCreateQuestion = async (
   jwtToken: string,
   questions: CreateQuestion[]
 ) => {
   const response = await fetch(
-    `${questionServiceUri(window.location.hostname)}/questions/batch-upload`,
+    `${questionServiceUri(window.location.hostname, AuthType.Admin)}/questions/batch-upload`,
     {
       method: "POST",
       headers: {

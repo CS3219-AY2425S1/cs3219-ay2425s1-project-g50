@@ -27,6 +27,6 @@ if __name__ == "__main__":
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=int(os.environ.get("PORT", 8000)),
-        reload=(os.environ.get("BUILD_ENV", "dev") == "dev")
+        port=int(os.environ.get("QUESTION_SERVICE_SERVICE_PORT", 8000)),
+        reload=(os.environ.get("BUILD_ENV", "prod") == "dev")
     )

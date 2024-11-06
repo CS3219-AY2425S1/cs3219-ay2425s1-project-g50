@@ -6,6 +6,7 @@ import { editor as MonacoEditor } from "monaco-types";
 
 import React, { useEffect, useMemo, useState } from "react";
 import Editor from "@monaco-editor/react";
+import { yjsWebSockUri } from "@/lib/api/api-uri";
 
 export default function MonacoEdit({ roomId }: { roomId: string }) {
   const ydoc = useMemo(() => new Y.Doc(), []);
@@ -16,7 +17,7 @@ export default function MonacoEdit({ roomId }: { roomId: string }) {
   // this effect manages the lifetime of the Yjs document and the provider
   useEffect(() => {
     const provider = new WebsocketProvider(
-      "ws://localhost:3002/yjs",
+      yjsWebSockUri(window.location.hostname),
       roomId,
       ydoc
     );
