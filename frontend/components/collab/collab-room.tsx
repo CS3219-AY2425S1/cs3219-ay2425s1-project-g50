@@ -15,7 +15,7 @@ export default function CollabRoom({ roomId }: { roomId: string }) {
   return (
     <div className="h-screen flex flex-col mx-4 p-4 overflow-hidden">
       <header className="flex justify-between border-b">
-        <h1 className="text-2xl font-bold mb-4">Collab Room {roomId}</h1>
+        <h1 className="text-2xl font-bold mb-4">Collaboration Room</h1>
         <Link href="/app/history">
           <Button variant="destructive">
             Leave Room
