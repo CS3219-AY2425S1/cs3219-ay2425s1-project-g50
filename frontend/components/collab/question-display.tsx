@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import clsx from "clsx";
 import {
   Card,
@@ -8,8 +8,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getQuestion } from "@/lib/api/question-service/get-question";
+import { useAuth } from "@/app/auth/auth-context";
+import { getQuestionId } from "@/lib/api/collab-service/get-questionId";
+import { useToast } from "@/components/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Question } from "@/lib/schemas/question-schema";
+import LoadingScreen from "@/components/common/loading-screen";
 
 const difficultyColors = {
   Easy: "bg-green-500",
@@ -20,12 +25,64 @@ const difficultyColors = {
 export default function QuestionDisplay({
   className,
   date,
-  question,
+  roomId,
+  setExposedQuestion,
 }: {
   className?: string;
   date?: Date;
-  question: Question | null;
+  roomId: string;
+  setExposedQuestion?: (question: Question) => void;
 }) {
+  const auth = useAuth();
+  const token = auth?.token;
+  const { toast } = useToast();
+
+  const [question, setQuestion] = useState<Question | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchQuestion() {
+      try {
+        if (!auth || !auth.token) {
+          toast({
+            title: "Access denied",
+            description: "No authentication token found",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Call to the collab microservice to get questionId by roomId
+        const response = await getQuestionId(auth.token, roomId);
+        const data = await response.json();
+
+        if (data.questionId) {
+          // Fetch the question details using the questionId
+          if (token) {
+            const questionResponse = await getQuestion(token, data.questionId);
+            const questionData = await questionResponse.json();
+            setQuestion(questionData);
+            if (setExposedQuestion) {
+              setExposedQuestion(questionData);
+            }
+          } else {
+            console.error("Token is not available");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching question:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchQuestion();
+  }, [roomId]);
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
   if (!question) {
     return <div>Question not found</div>;
   }
