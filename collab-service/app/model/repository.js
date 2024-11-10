@@ -121,21 +121,22 @@ export async function getQuestionIdByRoomId(roomId) {
   }
 }
 
-export async function sendAiMessage(message) {
+export async function sendAiMessage(messages) {
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        'Content-Type': "application/json",
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: message }],
+        messages: messages,
       }),
     });
     const data = await response.json();
-    return data;
+    const returnMessage = data.choices[0].message.content;
+    return returnMessage;
   } catch (error) {
     console.error("Error in sending AI message:", error);
   }

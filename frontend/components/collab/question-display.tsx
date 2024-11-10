@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import clsx from "clsx";
 import {
   Card,
@@ -8,12 +8,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import LoadingScreen from "@/components/common/loading-screen";
 import { getQuestion } from "@/lib/api/question-service/get-question";
-import { useToast } from "@/components/hooks/use-toast";
 import { useAuth } from "@/app/auth/auth-context";
 import { getQuestionId } from "@/lib/api/collab-service/get-questionId";
+import { useToast } from "@/components/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { Question } from "@/lib/schemas/question-schema";
+import LoadingScreen from "@/components/common/loading-screen";
 
 const difficultyColors = {
   Easy: "bg-green-500",
@@ -21,25 +22,21 @@ const difficultyColors = {
   Hard: "bg-red-500",
 };
 
-interface Question {
-  title: string;
-  categories: string;
-  complexity: keyof typeof difficultyColors;
-  description: string;
-}
-
 export default function QuestionDisplay({
-  roomId,
   className,
   date,
+  roomId,
+  setExposedQuestion,
 }: {
-  roomId: string;
   className?: string;
   date?: Date;
+  roomId: string;
+  setExposedQuestion?: (question: Question) => void;
 }) {
   const auth = useAuth();
-  const { toast } = useToast();
   const token = auth?.token;
+  const { toast } = useToast();
+
   const [question, setQuestion] = useState<Question | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -65,6 +62,9 @@ export default function QuestionDisplay({
             const questionResponse = await getQuestion(token, data.questionId);
             const questionData = await questionResponse.json();
             setQuestion(questionData);
+            if (setExposedQuestion) {
+              setExposedQuestion(questionData);
+            }
           } else {
             console.error("Token is not available");
           }
