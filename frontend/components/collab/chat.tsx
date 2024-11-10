@@ -55,6 +55,7 @@ export default function Chat({
   const [aiMessages, setAiMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [roomCount, setRoomCount] = useState(0);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -145,6 +146,14 @@ export default function Chat({
       setIsConnected(false);
     });
 
+    socketInstance.on("roomCount", (roomCount: number) => {
+      toast({
+        title: "Room Count",
+        description: "Current room count: " + roomCount,
+      });
+      setRoomCount(roomCount);
+    });
+
     socketInstance.on("chatMessage", (message: Message) => {
       setPartnerMessages((prev) => {
         const exists = prev.some(
@@ -171,7 +180,7 @@ export default function Chat({
     return () => {
       socketInstance.disconnect();
     };
-  }, [roomId, own_user_id, auth?.user?.id]);
+  }, [roomId, own_user_id, auth?.user?.id, toast]);
 
   useEffect(() => {
     const scrollWithDelay = () => {
@@ -282,7 +291,7 @@ export default function Chat({
     <Card className="flex flex-col h-full">
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
-          Chat
+          Chat (Users: {roomCount})
           <span
             className={`h-2 w-2 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`}
           />

@@ -21,6 +21,7 @@ const io = new Server(server, {
   },
 });
 
+// Partially Referenced from: https://github.com/yjs/y-monaco/blob/master/demo/monaco-demo.js
 const yjsWs = new WebSocketServer({ noServer: true });
 yjsWs.on("connection", (conn, req) => {
   setupWSConnection(conn, req, {
@@ -36,18 +37,23 @@ setInterval(() => {
   const stats = {
     conns,
     docs: docs.size,
-    websocket: `ws://localhost:${PORT}`,
-    http: `http://localhost:${PORT}`,
   };
   console.log(`${new Date().toISOString()} Stats: ${JSON.stringify(stats)}`);
 }, 10000);
 
+const roomUserCount = new Map();
 io.on("connection", (socket) => {
   console.log("User connected to Socket.IO");
 
   // Join a room based on roomId
   socket.on("joinRoom", (roomId) => {
     socket.join(roomId);
+    if (roomUserCount.has(roomId)) {
+      roomUserCount.set(roomId, roomUserCount.get(roomId) + 1);
+    } else {
+      roomUserCount.set(roomId, 1);
+    }
+    io.to(roomId).emit("roomCount", roomUserCount.get(roomId));
     console.log(`User joined room: ${roomId}`);
   });
 
@@ -58,6 +64,18 @@ io.on("connection", (socket) => {
 
     // Broadcast the message to all clients in the same room
     io.to(roomId).emit("chatMessage", newMessage);
+  });
+
+  socket.on("disconnecting", () => {
+    socket.rooms.forEach((roomId) => {
+      if (roomId !== socket.id) {
+        if (roomUserCount.has(roomId)) {
+          const currentCount = roomUserCount.get(roomId);
+          roomUserCount.set(roomId, currentCount - 1);
+          io.to(roomId).emit("roomCount", roomUserCount.get(roomId));
+        }
+      }
+    });
   });
 
   socket.on("disconnect", () => {
