@@ -1,0 +1,89 @@
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+    ports:
+      - $API_GATEWAY_SERVICE_PORT:$API_GATEWAY_SERVICE_PORT
+    environment:
+      - API_GATEWAY_SERVICE_PORT=$API_GATEWAY_SERVICE_PORT
+      - FRONTEND_SERVICE_PORT=$FRONTEND_SERVICE_PORT
+      - FRONTEND_SERVICE_HOST=frontend
+      - USER_SERVICE_SERVICE_PORT=$USER_SERVICE_SERVICE_PORT
+      - USER_SERVICE_SERVICE_HOST=user-service
+      - QUESTION_SERVICE_SERVICE_PORT=$QUESTION_SERVICE_SERVICE_PORT
+      - QUESTION_SERVICE_SERVICE_HOST=question-service
+      - MATCHING_SERVICE_SERVICE_PORT=$MATCHING_SERVICE_SERVICE_PORT
+      - MATCHING_SERVICE_SERVICE_HOST=matching-service
+      - COLLAB_SERVICE_SERVICE_PORT=$COLLAB_SERVICE_SERVICE_PORT
+      - COLLAB_SERVICE_SERVICE_HOST=collab-service
+    depends_on:
+      - frontend
+      - user-service
+      - question-service
+      - matching-service
+      - collab-service
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - BASE_URI=$BASE_URI
+        - API_GATEWAY_SERVICE_PORT=$API_GATEWAY_SERVICE_PORT
+        - FRONTEND_SERVICE_PORT=$FRONTEND_SERVICE_PORT
+    expose:
+      - $FRONTEND_SERVICE_PORT
+
+  question-service:
+    build:
+      context: ./question-service
+    environment:
+      - QUESTION_SERVICE_SERVICE_PORT=$QUESTION_SERVICE_SERVICE_PORT
+      - DB_URI=$QUESTION_SVC_DB_URI
+    expose:
+      - $QUESTION_SERVICE_SERVICE_PORT
+  
+  user-service:
+    build:
+      context: ./user-service
+    environment:
+      - USER_SERVICE_SERVICE_PORT=$USER_SERVICE_SERVICE_PORT
+      - DB_URI=$USER_SVC_DB_URI
+      - JWT_SECRET=$JWT_SECRET
+      - EMAIL_ADDRESS=$EMAIL_ADDRESS
+      - EMAIL_PASSWORD=$EMAIL_PASSWORD
+    expose:
+      - $USER_SERVICE_SERVICE_PORT
+
+  matching-service:
+    build:
+      context: ./matching-service
+    environment:
+      - MATCHING_SERVICE_SERVICE_PORT=$MATCHING_SERVICE_SERVICE_PORT
+      - REDIS_SERVICE_HOST=redis
+      - REDIS_SERVICE_PORT=$REDIS_SERVICE_PORT
+      - QUESTION_SERVICE_SERVICE_PORT=$QUESTION_SERVICE_SERVICE_PORT
+      - QUESTION_SERVICE_SERVICE_HOST=question-service
+      - COLLAB_SERVICE_SERVICE_PORT=$COLLAB_SERVICE_SERVICE_PORT
+      - COLLAB_SERVICE_SERVICE_HOST=collab-service
+    expose:
+      - $MATCHING_SERVICE_SERVICE_PORT
+    depends_on:
+      - redis
+      - question-service
+      - collab-service
+
+  collab-service:
+    build:
+      context: ./collab-service
+    environment:
+      - COLLAB_SERVICE_SERVICE_PORT=$COLLAB_SERVICE_SERVICE_PORT
+      - DB_URI=$COLLAB_SVC_DB_URI
+      - OPENAI_API_KEY=$OPENAI_API_KEY
+    expose:
+      - $COLLAB_SERVICE_SERVICE_PORT
+
+  redis:
+    image: redis:7.4-alpine
+    restart: always
+    expose:
+      - $REDIS_SERVICE_PORT

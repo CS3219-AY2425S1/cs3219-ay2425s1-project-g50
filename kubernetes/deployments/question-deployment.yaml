@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: question-service
+  namespace: peer-prep
+  labels:
+    app: question-service
+spec:
+  selector:
+    matchLabels:
+      app: question-service
+  template:
+    metadata:
+      labels:
+        app: question-service
+    spec:
+      containers:
+      - name: question-service
+        image: jq1836/cs3219-g50-question-service:latest
+        env:
+        - name: DB_URI
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: question_svc_db_uri
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "200m"
+          limits:
+            memory: "500Mi"
+            cpu: "400m"
+        imagePullPolicy: Always
+      restartPolicy: Always

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: peer-prep
+  labels:
+    app: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: jq1836/cs3219-g50-frontend:latest
+        env:
+        - name: PORT
+          value: "$(FRONTEND_SERVICE_PORT)"
+        - name: NEXT_PUBLIC_API_GATEWAY_PORT
+          value: "$(API_GATEWAY_PORT)"
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "200m"
+          limits:
+            memory: "500Mi"
+            cpu: "400m"
+        imagePullPolicy: Always
+      restartPolicy: Always

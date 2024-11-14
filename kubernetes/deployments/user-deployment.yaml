@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: peer-prep
+  labels:
+    app: user-service
+spec:
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: jq1836/cs3219-g50-user-service:latest
+        env:
+        - name: DB_URI
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: user_svc_db_uri
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: jwt_secret
+        - name: EMAIL_ADDRESS
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: user_svc_email_address
+        - name: EMAIL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: user_svc_email_password
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "200m"
+          limits:
+            memory: "500Mi"
+            cpu: "400m"
+        imagePullPolicy: Always
+      restartPolicy: Always

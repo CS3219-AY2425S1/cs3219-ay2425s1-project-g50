@@ -1,0 +1,40 @@
+# Base file is docker-compose.yml
+services:
+  frontend:
+    build:
+      target: dev
+    volumes:
+      - ./frontend/app:/app/app
+      - ./frontend/components:/app/components
+
+  question-service:
+    environment:
+      - BUILD_ENV=dev
+    volumes:
+      - ./question-service/app:/app/app
+  
+  user-service:
+    build:
+      target: dev
+    volumes:
+      - ./user-service/app:/app/app
+
+  matching-service:
+    environment:
+      - BUILD_ENV=dev
+    volumes:
+      - ./matching-service/app:/app/app
+
+  collab-service:
+    build:
+      target: dev
+
+  # access RedisInsight at http://localhost:5540
+  # connect to redis on redis insight at redis:6379
+  redisinsight:
+    image: redis/redisinsight:latest
+    restart: always
+    ports:
+      - $REDIS_INSIGHT_PORT:$REDIS_INSIGHT_PORT  # Expose RedisInsight UI on port 5540
+    depends_on:
+      - redis

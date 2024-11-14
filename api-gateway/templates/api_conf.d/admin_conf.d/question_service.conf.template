@@ -1,0 +1,5 @@
+location /admin/question-service/ {
+    location /admin/question-service/questions {
+        proxy_pass http://question-service/questions;
+    }
+}

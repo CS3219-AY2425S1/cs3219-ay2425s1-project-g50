@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collab-service
+  namespace: peer-prep
+  labels:
+    app: collab-service
+spec:
+  selector:
+    matchLabels:
+      app: collab-service
+  template:
+    metadata:
+      labels:
+        app: collab-service
+    spec:
+      containers:
+      - name: collab-service
+        image: jq1836/cs3219-g50-collab-service:latest
+        env:
+        - name: DB_URI
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: collab_svc_db_uri
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: openai_api_key
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        imagePullPolicy: Always
+      restartPolicy: Always

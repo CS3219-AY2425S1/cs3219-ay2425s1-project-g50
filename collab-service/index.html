@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Socket.IO Test</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+    <h2>Socket.IO Chat Test</h2>
+    <input id="roomInput" placeholder="Room ID" />
+    <button onclick="joinRoom()">Join Room</button>
+    <br><br>
+    <input id="messageInput" placeholder="Message" />
+    <button onclick="sendMessage()">Send Message</button>
+    <div id="messages"></div>
+
+    <script>
+        const socket = io("http://localhost:3002");
+
+        socket.on("connect", () => {
+            console.log("Connected to Socket.IO server");
+        });
+
+        socket.on("chatMessage", (message) => {
+            const messagesDiv = document.getElementById("messages");
+            const messageElem = document.createElement("p");
+            messageElem.textContent = `Received: ${message.text}`;
+            messagesDiv.appendChild(messageElem);
+        });
+
+        function joinRoom() {
+            const roomId = document.getElementById("roomInput").value;
+            socket.emit("joinRoom", roomId);
+            console.log(`Joined room: ${roomId}`);
+        }
+
+        function sendMessage() {
+            const roomId = document.getElementById("roomInput").value;
+            const text = document.getElementById("messageInput").value;
+            const message = { roomId, userId: "user1", text };
+            socket.emit("sendMessage", message);
+            console.log(`Sent message: ${text}`);
+        }
+    </script>
+</body>
+</html>
+

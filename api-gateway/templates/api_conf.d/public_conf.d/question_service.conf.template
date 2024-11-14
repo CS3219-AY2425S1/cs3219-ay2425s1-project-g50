@@ -1,0 +1,8 @@
+location /public/question-service/ {
+    location /public/question-service/questions {
+        limit_except GET {
+            deny all;
+        }
+        proxy_pass http://question-service/questions;
+    }
+}

@@ -1,0 +1,17 @@
+# Base file is docker-compose.yml
+services:
+  frontend:
+    build:
+      target: prod
+
+  question-service:
+    environment:
+      - BUILD_ENV=prod
+  
+  user-service:
+    build:
+      target: prod
+
+  matching-service:
+    environment:
+      - BUILD_ENV=prod

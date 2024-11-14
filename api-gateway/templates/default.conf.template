@@ -1,0 +1,31 @@
+include conf.d/api_conf.d/api_backends.conf;
+
+server {
+    listen $API_GATEWAY_SERVICE_PORT;
+    listen [::]:$API_GATEWAY_SERVICE_PORT;
+
+    location /public/ {
+        include conf.d/api_conf.d/public_conf.d/*.conf;
+    }
+
+    location /private/ {
+        auth_request /verify-token;
+        include conf.d/api_conf.d/private_conf.d/*.conf;
+    }
+
+    location /owner/ {
+        auth_request /verify-owner;
+        include conf.d/api_conf.d/owner_conf.d/*.conf;
+    }
+
+    location /admin/ {
+        auth_request /verify-admin;
+        include conf.d/api_conf.d/admin_conf.d/*.conf;
+    }
+
+    include conf.d/api_conf.d/auth.conf;
+    
+    include conf.d/api_conf.d/frontend.conf;
+}
+
+include conf.d/map_conf.d/*.conf;
