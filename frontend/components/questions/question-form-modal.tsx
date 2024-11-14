@@ -96,20 +96,28 @@ const QuestionFormModal: React.FC<QuestionFormModalProps> = ({ ...props }) => {
               </DialogHeader>
               <div>
                 <Label>Category</Label>
-                <MultiSelect
-                  className="mt-2"
-                  defaultValue={question.categories as string[]}
-                  options={CategoryEnumArray.map((category) => ({
-                    label: category,
-                    value: category,
-                  }))}
-                  onValueChange={(v) =>
-                    setQuestion({
-                      ...question,
-                      categories: v as CategoryEnum[],
-                    })
-                  }
-                />
+                {props.isAdmin ? (
+                  <MultiSelect
+                    className="mt-2"
+                    defaultValue={question.categories as string[]}
+                    options={CategoryEnumArray.map((category) => ({
+                      label: category,
+                      value: category,
+                    }))}
+                    onValueChange={(v) =>
+                      setQuestion({
+                        ...question,
+                        categories: v as CategoryEnum[],
+                      })
+                    }
+                  />
+                ) : (
+                  <Input
+                    className="mt-2"
+                    value={question.categories.join(", ")}
+                    disabled
+                  />
+                )}
               </div>
 
               <div>
